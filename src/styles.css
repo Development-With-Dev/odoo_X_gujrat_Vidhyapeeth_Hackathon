@@ -1334,6 +1334,70 @@ button {
   gap: var(--sp-6);
 }
 
+/* ─── One-Click Report Cards ────────────────────────────────── */
+.one-click-report-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: var(--sp-6);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all var(--t-normal) var(--ease-out);
+  color: var(--text-primary);
+  position: relative;
+  overflow: hidden;
+}
+
+.one-click-report-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--gradient-primary);
+  opacity: 0;
+  transition: opacity var(--t-normal) var(--ease-out);
+}
+
+.one-click-report-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-glow-lg);
+  border-color: rgba(99, 102, 241, 0.3);
+  background: var(--bg-card-hover);
+}
+
+.one-click-report-card:hover::before {
+  opacity: 1;
+}
+
+.one-click-report-card:active {
+  transform: translateY(-1px);
+}
+
+/* ─── Fuel Bar Row Hover ────────────────────────────────────── */
+.fuel-bar-row:hover {
+  transform: translateX(4px);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ─── Analytics Chart Cards ─────────────────────────────────── */
+.analytics-chart-card {
+  transition: all var(--t-normal) var(--ease-out);
+}
+
+.analytics-chart-card:hover {
+  border-color: rgba(99, 102, 241, 0.2);
+  box-shadow: 0 0 30px rgba(99, 102, 241, 0.08), var(--shadow-md);
+}
+
+.analytics-chart-card canvas {
+  cursor: crosshair;
+}
+
 /* ─── Responsive ────────────────────────────────────────────── */
 @media (max-width: 1024px) {
   .sidebar {

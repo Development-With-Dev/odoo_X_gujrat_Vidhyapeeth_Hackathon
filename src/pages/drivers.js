@@ -26,7 +26,14 @@ export function renderDrivers() {
   ${expiredDrivers.length ? `<div class="card mb-6" style="border-color:rgba(239,68,68,.3)"><div class="card-header" style="background:var(--c-danger-bg)"><span class="card-title flex items-center gap-2" style="color:var(--c-danger)"><span class="material-symbols-rounded">warning</span>Expired License Alerts</span></div><div class="card-body">${expiredDrivers.map(d => `<div class="flex items-center gap-3" style="padding:4px 0"><div class="driver-avatar">${d.name[0]}</div><span style="font-weight:600;flex:1">${d.name}</span><span class="text-sm" style="color:var(--c-danger)">Expired: ${formatDate(d.licenseExpiry)}</span></div>`).join('')}</div></div>` : ''}
   <div class="card"><div class="data-table-wrap"><table class="data-table"><thead><tr><th>Driver</th><th>Phone</th><th>License</th><th>Categories</th><th>Expiry</th><th>Safety</th><th>Trips</th><th>Status</th><th>Actions</th></tr></thead><tbody>
   ${drivers.map(d => {
-    const exp = d.licenseExpiry < today(); const rate = d.tripsCompleted + d.tripsCancelled > 0 ? ((d.tripsCompleted / (d.tripsCompleted + d.tripsCancelled)) * 100).toFixed(0) : 100; return `<tr>
+    const exp = d.licenseExpiry < today();
+    const rate = d.tripsCompleted + d.tripsCancelled > 0 ? ((d.tripsCompleted / (d.tripsCompleted + d.tripsCancelled)) * 100).toFixed(0) : 100;
+    const isAvail = d.status === 'On Duty';
+    const statusLabel = d.status === 'On Duty' ? 'Available' : (d.status === 'On Trip' ? 'On Trip (Busy)' : d.status);
+    const statusPill = `<span class="status-pill" style="color:${isAvail ? 'var(--c-success)' : (d.status === 'On Trip' ? 'var(--c-info)' : 'var(--c-muted)')};background:${isAvail ? 'var(--c-success-bg)' : (d.status === 'On Trip' ? 'var(--c-info-bg)' : 'var(--c-muted-bg)')};font-weight:700">
+      <span style="font-size:8px;margin-right:4px">${isAvail ? '●' : '○'}</span>${statusLabel}
+    </span>`;
+    return `<tr>
     <td><div class="flex items-center gap-3"><div class="driver-avatar">${d.name[0]}</div><div style="font-weight:600">${d.name}</div></div></td>
     <td class="text-sm">${d.phone}</td>
     <td><code style="background:var(--bg-elevated);padding:2px 6px;border-radius:4px;font-size:var(--fs-xs)">${d.licenseNumber}</code></td>
@@ -34,7 +41,7 @@ export function renderDrivers() {
     <td><span style="color:${exp ? 'var(--c-danger)' : 'var(--text-primary)'};font-weight:${exp ? 700 : 400}">${exp ? '⚠ ' : ''}${formatDate(d.licenseExpiry)}</span></td>
     <td><div class="flex items-center gap-2"><span style="font-weight:700;color:${d.safetyScore >= 80 ? 'var(--c-success)' : d.safetyScore >= 60 ? 'var(--c-warning)' : 'var(--c-danger)'}">${d.safetyScore}</span><div style="width:50px;height:5px;background:var(--bg-elevated);border-radius:99px"><div style="width:${d.safetyScore}%;height:100%;background:${d.safetyScore >= 80 ? 'var(--c-success)' : d.safetyScore >= 60 ? 'var(--c-warning)' : 'var(--c-danger)'};border-radius:99px"></div></div></div></td>
     <td><span style="font-weight:600">${d.tripsCompleted}</span><span class="text-xs text-muted"> (${rate}%)</span></td>
-    <td>${pillHTML(d.status)}</td>
+    <td>${statusPill}</td>
     <td><div class="flex gap-2"><button class="btn btn-ghost btn-sm btn-icon" data-ed="${d.id}"><span class="material-symbols-rounded" style="font-size:16px">edit</span></button><select class="form-select" style="padding:4px 28px 4px 8px;font-size:var(--fs-xs);width:auto;min-width:90px" data-st="${d.id}">${['On Duty', 'Off Duty', 'Suspended'].map(s => `<option ${d.status === s ? 'selected' : ''}>${s}</option>`).join('')}</select></div></td>
   </tr>`}).join('')}</tbody></table></div></div>`;
 
