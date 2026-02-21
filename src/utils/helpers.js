@@ -1,173 +1,173 @@
 export function formatCurrency(amount) {
-  return '₹' + Number(amount).toLocaleString('en-IN');
+    return '₹' + Number(amount).toLocaleString('en-IN');
 }
 
 export function animateCounters(selector = '[data-count]', duration = 1200) {
-  document.querySelectorAll(selector).forEach(el => {
-    const raw = el.getAttribute('data-count');
-    const prefix = el.getAttribute('data-prefix') || '';
-    const suffix = el.getAttribute('data-suffix') || '';
-    const decimals = parseInt(el.getAttribute('data-decimals') || '0', 10);
-    const target = parseFloat(raw);
-    if (isNaN(target)) return;
+    document.querySelectorAll(selector).forEach(el => {
+        const raw = el.getAttribute('data-count');
+        const prefix = el.getAttribute('data-prefix') || '';
+        const suffix = el.getAttribute('data-suffix') || '';
+        const decimals = parseInt(el.getAttribute('data-decimals') || '0', 10);
+        const target = parseFloat(raw);
+        if (isNaN(target)) return;
 
-    let start = null;
-    const easeOut = t => 1 - Math.pow(1 - t, 4); // easeOutQuart
+        let start = null;
+        const easeOut = t => 1 - Math.pow(1 - t, 4); // easeOutQuart
 
-    function step(ts) {
-      if (!start) start = ts;
-      const elapsed = ts - start;
-      const progress = Math.min(elapsed / duration, 1);
-      const current = target * easeOut(progress);
-      el.textContent = prefix + (decimals > 0 ? current.toFixed(decimals) : Math.round(current).toLocaleString('en-IN')) + suffix;
-      if (progress < 1) requestAnimationFrame(step);
-      else el.textContent = prefix + (decimals > 0 ? target.toFixed(decimals) : target.toLocaleString('en-IN')) + suffix;
-    }
-    requestAnimationFrame(step);
-  });
+        function step(ts) {
+            if (!start) start = ts;
+            const elapsed = ts - start;
+            const progress = Math.min(elapsed / duration, 1);
+            const current = target * easeOut(progress);
+            el.textContent = prefix + (decimals > 0 ? current.toFixed(decimals) : Math.round(current).toLocaleString('en-IN')) + suffix;
+            if (progress < 1) requestAnimationFrame(step);
+            else el.textContent = prefix + (decimals > 0 ? target.toFixed(decimals) : target.toLocaleString('en-IN')) + suffix;
+        }
+        requestAnimationFrame(step);
+    });
 }
 
 export function formatCompact(amount) {
-  const n = Number(amount);
-  if (isNaN(n)) return '₹0';
-  const abs = Math.abs(n);
-  const sign = n < 0 ? '-' : '';
-  if (abs >= 1_00_00_000) return sign + '₹' + (abs / 1_00_00_000).toFixed(2).replace(/\.?0+$/, '') + ' Cr';
-  if (abs >= 1_00_000) return sign + '₹' + (abs / 1_00_000).toFixed(2).replace(/\.?0+$/, '') + ' L';
-  if (abs >= 1_000) return sign + '₹' + (abs / 1_000).toFixed(1).replace(/\.?0+$/, '') + 'K';
-  return sign + '₹' + abs.toLocaleString('en-IN');
+    const n = Number(amount);
+    if (isNaN(n)) return '₹0';
+    const abs = Math.abs(n);
+    const sign = n < 0 ? '-' : '';
+    if (abs >= 1_00_00_000) return sign + '₹' + (abs / 1_00_00_000).toFixed(2).replace(/\.?0+$/, '') + ' Cr';
+    if (abs >= 1_00_000) return sign + '₹' + (abs / 1_00_000).toFixed(2).replace(/\.?0+$/, '') + ' L';
+    if (abs >= 1_000) return sign + '₹' + (abs / 1_000).toFixed(1).replace(/\.?0+$/, '') + 'K';
+    return sign + '₹' + abs.toLocaleString('en-IN');
 }
 
 export function formatDate(dateStr) {
-  if (!dateStr) return '—';
-  const d = new Date(dateStr);
-  return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+    if (!dateStr) return '—';
+    const d = new Date(dateStr);
+    return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
 export function formatDateTime(dateStr) {
-  if (!dateStr) return '—';
-  const d = new Date(dateStr);
-  return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    if (!dateStr) return '—';
+    const d = new Date(dateStr);
+    return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 }
 
 export function statusColor(status) {
-  const map = {
-    'Available': 'var(--c-success)',
-    'On Trip': 'var(--c-info)',
-    'In Shop': 'var(--c-warning)',
-    'Retired': 'var(--c-muted)',
-    'Draft': 'var(--c-muted)',
-    'Dispatched': 'var(--c-info)',
-    'Completed': 'var(--c-success)',
-    'Cancelled': 'var(--c-danger)',
-    'In Progress': 'var(--c-warning)',
-    'On Duty': 'var(--c-success)',
-    'Off Duty': 'var(--c-muted)',
-    'Suspended': 'var(--c-danger)',
-  };
-  return map[status] || 'var(--c-muted)';
+    const map = {
+        'Available': 'var(--c-success)',
+        'On Trip': 'var(--c-info)',
+        'In Shop': 'var(--c-warning)',
+        'Retired': 'var(--c-muted)',
+        'Draft': 'var(--c-muted)',
+        'Dispatched': 'var(--c-info)',
+        'Completed': 'var(--c-success)',
+        'Cancelled': 'var(--c-danger)',
+        'In Progress': 'var(--c-warning)',
+        'On Duty': 'var(--c-success)',
+        'Off Duty': 'var(--c-muted)',
+        'Suspended': 'var(--c-danger)',
+    };
+    return map[status] || 'var(--c-muted)';
 }
 
 export function statusBg(status) {
-  const map = {
-    'Available': 'var(--c-success-bg)',
-    'On Trip': 'var(--c-info-bg)',
-    'In Shop': 'var(--c-warning-bg)',
-    'Retired': 'var(--c-muted-bg)',
-    'Draft': 'var(--c-muted-bg)',
-    'Dispatched': 'var(--c-info-bg)',
-    'Completed': 'var(--c-success-bg)',
-    'Cancelled': 'var(--c-danger-bg)',
-    'In Progress': 'var(--c-warning-bg)',
-    'On Duty': 'var(--c-success-bg)',
-    'Off Duty': 'var(--c-muted-bg)',
-    'Suspended': 'var(--c-danger-bg)',
-  };
-  return map[status] || 'var(--c-muted-bg)';
+    const map = {
+        'Available': 'var(--c-success-bg)',
+        'On Trip': 'var(--c-info-bg)',
+        'In Shop': 'var(--c-warning-bg)',
+        'Retired': 'var(--c-muted-bg)',
+        'Draft': 'var(--c-muted-bg)',
+        'Dispatched': 'var(--c-info-bg)',
+        'Completed': 'var(--c-success-bg)',
+        'Cancelled': 'var(--c-danger-bg)',
+        'In Progress': 'var(--c-warning-bg)',
+        'On Duty': 'var(--c-success-bg)',
+        'Off Duty': 'var(--c-muted-bg)',
+        'Suspended': 'var(--c-danger-bg)',
+    };
+    return map[status] || 'var(--c-muted-bg)';
 }
 
 export function pillHTML(status) {
-  return `<span class="status-pill" style="color:${statusColor(status)};background:${statusBg(status)}">${status}</span>`;
+    return `<span class="status-pill" style="color:${statusColor(status)};background:${statusBg(status)}">${status}</span>`;
 }
 
 export function vehicleIcon(type) {
-  const map = { 'Truck': 'local_shipping', 'Van': 'airport_shuttle', 'Bike': 'two_wheeler' };
-  return map[type] || 'directions_car';
+    const map = { 'Truck': 'local_shipping', 'Van': 'airport_shuttle', 'Bike': 'two_wheeler' };
+    return map[type] || 'directions_car';
 }
 
 export function toast(message, type = 'info') {
-  const t = document.createElement('div');
-  t.className = `toast toast-${type}`;
-  t.innerHTML = `<span class="material-symbols-rounded">${type === 'success' ? 'check_circle' : type === 'error' ? 'error' : 'info'}</span><span>${message}</span>`;
-  document.body.appendChild(t);
-  requestAnimationFrame(() => t.classList.add('show'));
-  setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 400); }, 3000);
+    const t = document.createElement('div');
+    t.className = `toast toast-${type}`;
+    t.innerHTML = `<span class="material-symbols-rounded">${type === 'success' ? 'check_circle' : type === 'error' ? 'error' : 'info'}</span><span>${message}</span>`;
+    document.body.appendChild(t);
+    requestAnimationFrame(() => t.classList.add('show'));
+    setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 400); }, 3000);
 }
 
 export function exportCSV(data, filename) {
-  if (!data.length) return;
-  const keys = Object.keys(data[0]);
-  const csv = [keys.join(','), ...data.map(row => keys.map(k => `"${row[k] ?? ''}"`).join(','))].join('\n');
-  const blob = new Blob([csv], { type: 'text/csv' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = filename; a.click();
-  URL.revokeObjectURL(url);
+    if (!data.length) return;
+    const keys = Object.keys(data[0]);
+    const csv = [keys.join(','), ...data.map(row => keys.map(k => `"${row[k] ?? ''}"`).join(','))].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename; a.click();
+    URL.revokeObjectURL(url);
 }
 
 export function exportExcel(sheets, filename) {
-  import('xlsx').then(XLSX => {
-    const wb = XLSX.utils.book_new();
-    const sheetMap = Array.isArray(sheets) ? { Report: sheets } : sheets;
-    for (const [name, data] of Object.entries(sheetMap)) {
-      if (!data || !data.length) continue;
-      const ws = XLSX.utils.json_to_sheet(data);
-      const keys = Object.keys(data[0]);
-      ws['!cols'] = keys.map(k => {
-        const maxLen = Math.max(k.length, ...data.map(r => String(r[k] ?? '').length));
-        return { wch: Math.min(maxLen + 2, 40) };
-      });
-      XLSX.utils.book_append_sheet(wb, ws, name.slice(0, 31));
-    }
-    XLSX.writeFile(wb, filename);
-  });
+    import('xlsx').then(XLSX => {
+        const wb = XLSX.utils.book_new();
+        const sheetMap = Array.isArray(sheets) ? { Report: sheets } : sheets;
+        for (const [name, data] of Object.entries(sheetMap)) {
+            if (!data || !data.length) continue;
+            const ws = XLSX.utils.json_to_sheet(data);
+            const keys = Object.keys(data[0]);
+            ws['!cols'] = keys.map(k => {
+                const maxLen = Math.max(k.length, ...data.map(r => String(r[k] ?? '').length));
+                return { wch: Math.min(maxLen + 2, 40) };
+            });
+            XLSX.utils.book_append_sheet(wb, ws, name.slice(0, 31));
+        }
+        XLSX.writeFile(wb, filename);
+    });
 }
 
 export function exportPDF({ title, generated, sections, charts, kpis }) {
-  const win = window.open('', '_blank');
-  if (!win) { toast('Please allow pop-ups to export PDF', 'error'); return; }
+    const win = window.open('', '_blank');
+    if (!win) { toast('Please allow pop-ups to export PDF', 'error'); return; }
 
-  const now = generated || new Date().toLocaleString('en-IN', { dateStyle: 'long', timeStyle: 'short' });
-  const docRef = 'FF-RPT-' + Date.now().toString(36).toUpperCase();
+    const now = generated || new Date().toLocaleString('en-IN', { dateStyle: 'long', timeStyle: 'short' });
+    const docRef = 'FF-RPT-' + Date.now().toString(36).toUpperCase();
 
-  const tableHTML = (rows) => {
-    if (!rows || !rows.length) return '<p class="no-data">No data available for this section.</p>';
-    const keys = Object.keys(rows[0]);
-    return `<table>
+    const tableHTML = (rows) => {
+        if (!rows || !rows.length) return '<p class="no-data">No data available for this section.</p>';
+        const keys = Object.keys(rows[0]);
+        return `<table>
             <thead><tr>${keys.map(k => `<th>${k}</th>`).join('')}</tr></thead>
             <tbody>${rows.map((r, i) => `<tr class="${i % 2 === 0 ? 'even' : 'odd'}">${keys.map(k => {
-      const v = r[k] ?? '';
-      const isNum = typeof v === 'number';
-      return `<td${isNum ? ' class="num"' : ''}>${isNum ? v.toLocaleString('en-IN') : v}</td>`;
-    }).join('')}</tr>`).join('')}</tbody>
+            const v = r[k] ?? '';
+            const isNum = typeof v === 'number';
+            return `<td${isNum ? ' class="num"' : ''}>${isNum ? v.toLocaleString('en-IN') : v}</td>`;
+        }).join('')}</tr>`).join('')}</tbody>
         </table>`;
-  };
+    };
 
-  const kpiHTML = kpis && kpis.length ? `<div class="kpi-row">${kpis.map(k =>
-    `<div class="kpi-box">
+    const kpiHTML = kpis && kpis.length ? `<div class="kpi-row">${kpis.map(k =>
+        `<div class="kpi-box">
             <div class="kpi-val" style="color:${k.color || '#4338ca'}">${k.value}</div>
             <div class="kpi-lbl">${k.label}</div>
         </div>`
-  ).join('')}</div>` : '';
+    ).join('')}</div>` : '';
 
-  const chartSections = charts && charts.length ? charts.map(c =>
-    `<div class="chart-block">
+    const chartSections = charts && charts.length ? charts.map(c =>
+        `<div class="chart-block">
             <div class="chart-title">${c.title}</div>
             <img src="${c.image}" class="chart-img" alt="${c.title}" />
         </div>`
-  ).join('') : '';
+    ).join('') : '';
 
-  win.document.write(`<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>${title}</title>
+    win.document.write(`<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>${title}</title>
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
       *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -423,7 +423,7 @@ export function exportPDF({ title, generated, sections, charts, kpis }) {
 
       <!-- CHARTS -->
       ${chartSections ? `
-        <div class="charts-header">📊 Visual Analytics — Charts & Graphs</div>
+        <div class="charts-header">Visual Analytics — Charts & Graphs</div>
         <div class="charts-grid">
           ${charts.map((c, i) => `<div class="chart-block${i === 0 || i === 3 || i === 4 ? ' full' : ''}">
             <div class="chart-title">${c.title}</div>
@@ -452,10 +452,10 @@ export function exportPDF({ title, generated, sections, charts, kpis }) {
       };
     <\/script>
     </body></html>`);
-  win.document.close();
+    win.document.close();
 }
 
 export function debounce(fn, ms = 300) {
-  let timer;
-  return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), ms); };
+    let timer;
+    return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), ms); };
 }

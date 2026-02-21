@@ -650,14 +650,14 @@ export function renderAnalytics() {
       kpis: pdfKpis,
       charts: chartImages,
       sections: [
-        { heading: '💰 Financial Summary', rows: r.fin },
-        { heading: '🚛 Vehicle ROI & Performance', rows: r.vr },
-        { heading: '⚠️ Dead Stock Alerts', rows: r.ds },
-        { heading: '🗺️ Trip Records', rows: r.tr },
-        { heading: '⛽ Fuel Log Entries', rows: r.fl },
-        { heading: '🔧 Maintenance Records', rows: r.mt },
-        { heading: '💸 Expense Records', rows: r.ex },
-        { heading: '👤 Driver Performance', rows: r.dr },
+        { heading: 'Financial Summary', rows: r.fin },
+        { heading: 'Vehicle ROI & Performance', rows: r.vr },
+        { heading: 'Dead Stock Alerts', rows: r.ds },
+        { heading: 'Trip Records', rows: r.tr },
+        { heading: 'Fuel Log Entries', rows: r.fl },
+        { heading: 'Maintenance Records', rows: r.mt },
+        { heading: 'Expense Records', rows: r.ex },
+        { heading: 'Driver Performance', rows: r.dr },
       ]
     });
     toast('Official PDF report with charts opened — Save as PDF', 'success');
