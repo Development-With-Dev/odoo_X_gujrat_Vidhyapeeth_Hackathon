@@ -90,6 +90,22 @@ export function exportCSV(data, filename) {
     URL.revokeObjectURL(url);
 }
 
+export function exportExcel(data, filename) {
+    if (!data.length) return;
+    import('xlsx').then(XLSX => {
+        const ws = XLSX.utils.json_to_sheet(data);
+        /* Auto-size columns based on content width */
+        const keys = Object.keys(data[0]);
+        ws['!cols'] = keys.map(k => {
+            const maxLen = Math.max(k.length, ...data.map(r => String(r[k] ?? '').length));
+            return { wch: Math.min(maxLen + 2, 40) };
+        });
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Report');
+        XLSX.writeFile(wb, filename);
+    });
+}
+
 export function debounce(fn, ms = 300) {
     let timer;
     return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), ms); };

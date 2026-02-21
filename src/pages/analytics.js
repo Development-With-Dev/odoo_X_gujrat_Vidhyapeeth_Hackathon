@@ -1,6 +1,6 @@
 import { store } from '../store/data.js';
 import { renderShell, bindShellEvents } from '../components/shell.js';
-import { formatCurrency, formatCompact, vehicleIcon, exportCSV, toast } from '../utils/helpers.js';
+import { formatCurrency, formatCompact, vehicleIcon, exportCSV, exportExcel, toast } from '../utils/helpers.js';
 
 export function renderAnalytics() {
   const app = document.getElementById('app');
@@ -135,7 +135,7 @@ export function renderAnalytics() {
   </div>`;
 
   app.innerHTML = renderShell('Analytics & Reports', 'Data-driven fleet insights',
-    `<button class="btn btn-primary" id="export-full"><span class="material-symbols-rounded">description</span> Full Report CSV</button>`, body);
+    `<button class="btn btn-primary" id="export-full"><span class="material-symbols-rounded">table_view</span> Full Report Excel</button>`, body);
   bindShellEvents();
 
   document.getElementById('export-analytics')?.addEventListener('click', () => {
@@ -145,7 +145,7 @@ export function renderAnalytics() {
 
   document.getElementById('export-full')?.addEventListener('click', () => {
     const data = [{ Type: 'Revenue', Amount: totalRevenue }, { Type: 'Fuel Cost', Amount: totalFuel }, { Type: 'Maintenance', Amount: totalMaint }, { Type: 'Other Expenses', Amount: totalExpense }, { Type: 'Net Profit', Amount: netProfit }];
-    exportCSV(data, 'fleetflow_financial_summary.csv');
-    toast('Financial summary exported', 'success');
+    exportExcel(data, 'fleetflow_financial_summary.xlsx');
+    toast('Financial summary exported as Excel', 'success');
   });
 }
