@@ -112,18 +112,34 @@ export function renderAnalytics() {
   const vm = vehicles.map(v => {
     const fl = store.getFuelLogsForVehicle(v.id);
     const liters = fl.reduce((s, f) => s + f.liters, 0);
-    const vTrips = store.trips.filter(t => t.vehicleId === v.id && t.status === 'Completed');
+    const vTrips = store.trips.filter(t => t.vehicleId === v.id && t.status === 'Completed').sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt));
     const km = vTrips.reduce((s, t) => (t.endOdometer && t.startOdometer) ? s + (t.endOdometer - t.startOdometer) : s, 0);
     const eff = liters > 0 ? parseFloat((km / liters).toFixed(1)) : 0;
     const rev = store.getTotalRevenue(v.id);
     const ops = store.getTotalOperationalCost(v.id);
     const roi = Number(store.getVehicleROI(v.id));
     const cpk = km > 0 ? (ops / km).toFixed(1) : '—';
+
+    /* ─── Last Trip Cost per KM (Fuel) ─── */
+    let lastTripFuelCpk = 0;
+    if (vTrips.length) {
+      const lastT = vTrips[0];
+      const tKm = (lastT.endOdometer || 0) - (lastT.startOdometer || 0);
+      if (tKm > 0) {
+        // Find fuel logs recorded near or for this trip
+        const tDate = new Date(lastT.completedAt || lastT.dispatchedAt).getTime();
+        const nearestFuel = fl.sort((a, b) => Math.abs(new Date(a.date).getTime() - tDate) - Math.abs(new Date(b.date).getTime() - tDate))[0];
+        if (nearestFuel) {
+          lastTripFuelCpk = parseFloat((nearestFuel.totalCost / tKm).toFixed(2));
+        }
+      }
+    }
+
     const allT = store.trips.filter(t => t.vehicleId === v.id);
     const last = allT.length ? allT.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0].createdAt : null;
     const idle = last ? Math.floor((Date.now() - new Date(last)) / 864e5) : 999;
     const dead = v.status === 'Available' && (idle > 7 || vTrips.length === 0);
-    return { ...v, liters, km, eff, rev, ops, roi, cpk, trips: vTrips.length, idle, dead };
+    return { ...v, liters, km, eff, rev, ops, roi, cpk, lastTripFuelCpk, trips: vTrips.length, idle, dead };
   });
 
   const avgEff = vm.filter(v => v.eff > 0).length > 0 ? +(vm.filter(v => v.eff > 0).reduce((s, v) => s + v.eff, 0) / vm.filter(v => v.eff > 0).length).toFixed(1) : 0;
@@ -193,7 +209,16 @@ export function renderAnalytics() {
     <div class="card-body"><div class="chart-container" style="height:${Math.max(260, vm.filter(v => v.eff > 0).length * 42)}px"><canvas id="ch-fuel"></canvas></div></div>
   </div>
 
-  <!-- CHART 5: ROI -->
+  <!-- CHART 5: Last Trip Fuel CPK -->
+  <div class="card analytics-chart-card mb-6">
+    <div class="card-header" style="background:linear-gradient(90deg,rgba(59,130,246,0.06),transparent)">
+      <span class="card-title flex items-center gap-2"><span class="material-symbols-rounded" style="color:${C.info}">speed</span> Last Trip Performance (Fuel ₹/km)</span>
+      <span class="text-xs text-muted">Based on most recent completed trip and nearest fuel log</span>
+    </div>
+    <div class="card-body"><div class="chart-container" style="height:280px"><canvas id="ch-last-cpk"></canvas></div></div>
+  </div>
+
+  <!-- CHART 6: ROI -->
   <div class="card analytics-chart-card mb-6">
     <div class="card-header" style="background:linear-gradient(90deg,rgba(99,102,241,0.06),transparent)">
       <span class="card-title flex items-center gap-2"><span class="material-symbols-rounded" style="color:${C.primary}">account_balance</span> Vehicle ROI — Revenue vs Cost</span>
@@ -203,12 +228,12 @@ export function renderAnalytics() {
   </div>
 
   <div class="grid-2 mb-6">
-    <!-- CHART 6: Profit Area -->
+    <!-- CHART 7: Profit Area -->
     <div class="card analytics-chart-card">
       <div class="card-header"><span class="card-title flex items-center gap-2"><span class="material-symbols-rounded" style="color:${C.primary}">monitoring</span> Monthly Profit</span></div>
       <div class="card-body"><div class="chart-container" style="height:300px"><canvas id="ch-profit"></canvas></div></div>
     </div>
-    <!-- CHART 7: Driver Radar -->
+    <!-- CHART 8: Driver Radar -->
     <div class="card analytics-chart-card">
       <div class="card-header"><span class="card-title flex items-center gap-2"><span class="material-symbols-rounded" style="color:gold">emoji_events</span> Top Drivers — Performance Radar</span></div>
       <div class="card-body"><div class="chart-container" style="height:300px"><canvas id="ch-radar"></canvas></div></div>
@@ -421,7 +446,48 @@ export function renderAnalytics() {
   });
 
   /* ═══════════════════════════════════════════════════════════
-     CHART 5 — VEHICLE ROI (Grouped Horizontal, Rev vs Cost)
+     CHART 5 — LAST TRIP FUEL CPK (Bar)
+     ═══════════════════════════════════════════════════════════ */
+  const cpkD = [...vm].sort((a, b) => b.lastTripFuelCpk - a.lastTripFuelCpk);
+  makeChart('ch-last-cpk', {
+    type: 'bar',
+    data: {
+      labels: cpkD.map(v => v.name),
+      datasets: [{
+        label: 'Fuel Cost ₹/km',
+        data: cpkD.map(v => v.lastTripFuelCpk),
+        backgroundColor: cpkD.map(v => {
+          if (v.lastTripFuelCpk === 0) return 'rgba(100,116,139,0.3)';
+          return v.lastTripFuelCpk < 15 ? 'rgba(34,197,94,0.7)' : v.lastTripFuelCpk > 35 ? 'rgba(239,68,68,0.7)' : 'rgba(59,130,246,0.7)';
+        }),
+        borderColor: 'transparent',
+        borderRadius: 8,
+        barPercentage: 0.6,
+      }],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      animation: { duration: 1000, easing: 'easeOutQuart' },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          ...prettyTooltip, callbacks: {
+            label: c => {
+              const val = c.parsed.y;
+              return val > 0 ? `Last Trip Fuel: ₹${val}/km` : 'No fuel logs for this trip';
+            }
+          }
+        }
+      },
+      scales: {
+        x: { ticks: { color: C.textSec, font: { size: 10 }, autoSkip: false, maxRotation: 45, minRotation: 45 }, grid: { display: false } },
+        y: { beginAtZero: true, ticks: { color: C.textMuted, callback: v => '₹' + v }, grid: { color: C.grid } }
+      }
+    }
+  });
+
+  /* ═══════════════════════════════════════════════════════════
+     CHART 6 — VEHICLE ROI (Grouped Horizontal, Rev vs Cost)
      ═══════════════════════════════════════════════════════════ */
   const roiD = [...vm].sort((a, b) => b.roi - a.roi);
   makeChart('ch-roi', {
@@ -575,7 +641,7 @@ export function renderAnalytics() {
   const report = () => {
     const f = { Category: 'Revenue', Amount: totalRevenue };
     const fin = [f, { Category: 'Fuel', Amount: totalFuel }, { Category: 'Maintenance', Amount: totalMaint }, { Category: 'Other', Amount: totalExpense }, { Category: 'Net Profit', Amount: netProfit }];
-    const vr = vm.map(v => ({ Vehicle: v.name, Plate: v.licensePlate, Trips: v.trips, 'km': v.km, 'L': v.liters, 'km/L': v.eff || '—', Revenue: v.rev, Cost: v.ops, 'ROI%': v.roi }));
+    const vr = vm.map(v => ({ Vehicle: v.name, Plate: v.licensePlate, Trips: v.trips, 'Last Fuel ₹/km': v.lastTripFuelCpk || '—', 'km': v.km, 'L': v.liters, 'km/L': v.eff || '—', Revenue: v.rev, Cost: v.ops, 'ROI%': v.roi }));
     const tr = store.trips.map(t => ({ Status: t.status, Vehicle: store.getVehicle(t.vehicleId)?.name || '—', Driver: store.getDriver(t.driverId)?.name || '—', Rev: t.revenue || 0 }));
     const fl = store.fuelLogs.map(f => ({ Vehicle: store.getVehicle(f.vehicleId)?.name || '—', L: f.liters, '₹': f.totalCost }));
     const mt = store.maintenance.map(m => ({ Vehicle: store.getVehicle(m.vehicleId)?.name || '—', Type: m.type, '₹': m.cost, Status: m.status }));
