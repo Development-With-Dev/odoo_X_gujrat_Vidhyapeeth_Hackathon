@@ -249,7 +249,6 @@ function showVehicleModal(editId) {
     e.preventDefault();
     const fd = new FormData(e.target);
 
-    // Validate year is exactly 4 digits
     const yearVal = fd.get('model')?.trim();
     if (!/^\d{4}$/.test(yearVal)) {
       toast('Model year must be exactly 4 digits (e.g. 2024)', 'error');

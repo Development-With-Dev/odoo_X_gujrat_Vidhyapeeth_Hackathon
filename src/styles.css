@@ -1,5 +1,4 @@
 :root {
-  /* ─── Premium Dark Theme ────────────────────────────────────── */
   --bg-primary: #0B0F19;
   --bg-secondary: #111827;
   --bg-card: #1A1F2E;
@@ -9,7 +8,6 @@
   --bg-sidebar: #0D1117;
   --bg-modal-overlay: rgba(0, 0, 0, 0.7);
 
-  /* Vibrant Blue Accent */
   --c-accent: #4C6EF5;
   --c-accent-light: #748FFC;
   --c-accent-dark: #3B5BDB;
@@ -127,7 +125,6 @@ button {
   font-size: inherit;
 }
 
-/* Scrollbar */
 ::-webkit-scrollbar {
   width: 5px;
   height: 5px;
@@ -146,7 +143,6 @@ button {
   background: var(--text-muted);
 }
 
-/* ─── Layout: Sidebar + Main ───────────────────────────────── */
 .app-shell {
   display: flex;
   min-height: 100vh;
@@ -377,7 +373,6 @@ button {
   text-transform: capitalize;
 }
 
-/* ─── Main Content ──────────────────────────────────────────── */
 .main-content {
   flex: 1;
   margin-left: var(--sidebar-width);
@@ -432,7 +427,6 @@ button {
   animation: pageBodyFadeIn 0.5s var(--ease-out) 0.2s both;
 }
 
-/* ─── Cards ─────────────────────────────────────────────────── */
 .card {
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
@@ -464,7 +458,6 @@ button {
   padding: var(--sp-5);
 }
 
-/* ─── KPI Cards ─────────────────────────────────────────────── */
 .kpi-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
@@ -569,7 +562,6 @@ button {
   gap: var(--sp-1);
 }
 
-/* ─── Tables ────────────────────────────────────────────────── */
 .data-table-wrap {
   overflow-x: auto;
 }
@@ -656,7 +648,6 @@ button {
   border-bottom: none;
 }
 
-/* ─── Status Pills ──────────────────────────────────────────── */
 .status-pill {
   display: inline-flex;
   align-items: center;
@@ -674,7 +665,6 @@ button {
   transform: scale(1.05);
 }
 
-/* ─── Buttons ───────────────────────────────────────────────── */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -795,7 +785,6 @@ button {
   transform: none !important;
 }
 
-/* ─── Form Elements ─────────────────────────────────────────── */
 .form-group {
   display: flex;
   flex-direction: column;
@@ -865,7 +854,6 @@ button {
   gap: var(--sp-5);
 }
 
-/* ─── Modals ────────────────────────────────────────────────── */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -925,7 +913,6 @@ button {
   gap: var(--sp-3);
 }
 
-/* ─── Toast ─────────────────────────────────────────────────── */
 .toast {
   position: fixed;
   bottom: 24px;
@@ -970,7 +957,6 @@ button {
   border-left: 3px solid var(--c-danger);
 }
 
-/* ─── Filter Bar ────────────────────────────────────────────── */
 .filter-bar {
   display: flex;
   align-items: center;
@@ -1036,7 +1022,6 @@ button {
   color: var(--c-accent-light);
 }
 
-/* ─── Multi-Select Filter Groups ───────────────────────────── */
 .multi-filter-group {
   display: flex;
   align-items: center;
@@ -1104,7 +1089,6 @@ button {
   color: var(--c-accent-light);
 }
 
-/* ─── Empty State ───────────────────────────────────────────── */
 .empty-state {
   display: flex;
   flex-direction: column;
@@ -1128,7 +1112,6 @@ button {
   font-size: var(--fs-sm);
 }
 
-/* ─── Login Page ────────────────────────────────────────────── */
 .login-page {
   display: flex;
   min-height: 100vh;
@@ -1148,7 +1131,6 @@ button {
   border-right: 1px solid var(--border-subtle);
 }
 
-/* Animated mesh background for login hero */
 .login-hero::before {
   content: '';
   position: absolute;
@@ -1160,7 +1142,6 @@ button {
   animation: meshMove 15s ease-in-out infinite alternate;
 }
 
-/* Floating particles */
 .login-hero::after {
   content: '';
   position: absolute;
@@ -1214,7 +1195,6 @@ button {
   position: relative;
 }
 
-/* Input icon wrapper */
 .input-icon-wrap {
   position: relative;
 }
@@ -1239,7 +1219,6 @@ button {
   transform: translateY(-50%) scale(1.1);
 }
 
-/* Auth page switch link */
 .auth-switch {
   text-align: center;
   margin-top: var(--sp-6);
@@ -1262,7 +1241,6 @@ button {
   text-decoration: underline;
 }
 
-/* Back-to-login */
 .back-to-login {
   display: inline-flex;
   align-items: center;
@@ -1385,7 +1363,6 @@ button {
   text-transform: capitalize;
 }
 
-/* ─── Animations ────────────────────────────────────────────── */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -1444,7 +1421,6 @@ button {
   }
 }
 
-/* Sidebar animations */
 @keyframes sidebarSlideIn {
   from {
     opacity: 0;
@@ -1493,7 +1469,6 @@ button {
   }
 }
 
-/* Header animations */
 @keyframes headerSlideDown {
   from {
     opacity: 0;
@@ -1520,7 +1495,6 @@ button {
   }
 }
 
-/* Page body */
 @keyframes pageBodyFadeIn {
   from {
     opacity: 0;
@@ -1533,7 +1507,6 @@ button {
   }
 }
 
-/* Table rows */
 @keyframes tableRowSlide {
   from {
     opacity: 0;
@@ -1546,7 +1519,6 @@ button {
   }
 }
 
-/* Content animations */
 @keyframes fadeSlideUp {
   from {
     opacity: 0;
@@ -1571,7 +1543,6 @@ button {
   }
 }
 
-/* Modal */
 @keyframes modalPop {
   from {
     opacity: 0;
@@ -1584,7 +1555,6 @@ button {
   }
 }
 
-/* Form fields (login/register) */
 @keyframes formTitleSlide {
   from {
     opacity: 0;
@@ -1609,7 +1579,6 @@ button {
   }
 }
 
-/* Login hero animations */
 @keyframes heroContentSlide {
   from {
     opacity: 0;
@@ -1672,7 +1641,6 @@ button {
   }
 }
 
-/* Empty state */
 @keyframes emptyFloat {
 
   0%,
@@ -1685,7 +1653,6 @@ button {
   }
 }
 
-/* Error shake */
 @keyframes shakeX {
 
   0%,
@@ -1710,7 +1677,6 @@ button {
   }
 }
 
-/* Stagger classes */
 .animate-fade-in {
   animation: fadeIn var(--t-normal) var(--ease-out) both;
 }
@@ -1735,7 +1701,6 @@ button {
   animation-delay: 320ms;
 }
 
-/* ─── Charts (Canvas Wrappers) ──────────────────────────────── */
 .chart-container {
   position: relative;
   width: 100%;
@@ -1748,7 +1713,6 @@ button {
   height: 100% !important;
 }
 
-/* ─── Miscellaneous ─────────────────────────────────────────── */
 .vehicle-thumb {
   width: 34px;
   height: 34px;
@@ -1865,7 +1829,6 @@ button {
   margin-bottom: var(--sp-6);
 }
 
-/* ─── Grid Layouts ──────────────────────────────────────────── */
 .grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1878,7 +1841,6 @@ button {
   gap: var(--sp-5);
 }
 
-/* ─── One-Click Report Cards ────────────────────────────────── */
 .one-click-report-card {
   display: flex;
   flex-direction: column;
@@ -1922,12 +1884,10 @@ button {
   transform: translateY(-1px);
 }
 
-/* ─── Fuel Bar Row Hover ────────────────────────────────────── */
 .fuel-bar-row:hover {
   background: var(--bg-card-hover);
 }
 
-/* ─── Analytics Chart Cards ─────────────────────────────────── */
 .analytics-chart-card {
   transition: all var(--t-normal) var(--ease-smooth);
 }
@@ -1941,7 +1901,6 @@ button {
   cursor: crosshair;
 }
 
-/* ─── Login Stats Cards ─────────────────────────────────────── */
 .login-stat-card {
   text-align: center;
   padding: var(--sp-4) var(--sp-5);
@@ -1956,7 +1915,6 @@ button {
   transform: translateY(-2px);
 }
 
-/* ─── Responsive ────────────────────────────────────────────── */
 @media (max-width: 1024px) {
   .sidebar {
     transform: translateX(-100%);

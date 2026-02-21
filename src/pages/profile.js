@@ -165,7 +165,6 @@ export function renderProfile() {
     app.innerHTML = renderShell('My Profile', 'Manage your account settings', '', bodyContent);
     bindShellEvents();
 
-    /* ─── Avatar Picker Toggle ─── */
     const avatarDisplay = document.getElementById('profile-avatar-display');
     const avatarCard = document.getElementById('avatar-picker-card');
     avatarDisplay?.addEventListener('click', () => {
@@ -177,7 +176,6 @@ export function renderProfile() {
         avatarDisplay.style.transform = '';
     });
 
-    /* ─── Avatar Selection ─── */
     document.querySelectorAll('.avatar-pick-btn').forEach(btn => {
         btn.addEventListener('click', async () => {
             const avatar = btn.dataset.avatar;
@@ -191,7 +189,6 @@ export function renderProfile() {
         });
     });
 
-    /* ─── Profile Form ─── */
     const profileForm = document.getElementById('profile-form');
     profileForm?.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -227,7 +224,6 @@ export function renderProfile() {
         }
     });
 
-    /* ─── Password Form ─── */
     const passwordForm = document.getElementById('password-form');
     passwordForm?.addEventListener('submit', async (e) => {
         e.preventDefault();

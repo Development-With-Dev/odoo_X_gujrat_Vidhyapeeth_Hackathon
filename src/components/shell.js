@@ -108,12 +108,10 @@ export function bindShellEvents() {
     });
   });
 
-  /* ─── Profile link ─── */
   document.getElementById('sidebar-profile-link')?.addEventListener('click', () => {
     router.navigate('/profile');
   });
 
-  /* ─── Logout Confirmation Modal ─── */
   const logoutBtn = document.getElementById('sidebar-logout-btn');
   const logoutModal = document.getElementById('logout-modal');
   const closeLogoutModal = () => { if (logoutModal) logoutModal.style.display = 'none'; };

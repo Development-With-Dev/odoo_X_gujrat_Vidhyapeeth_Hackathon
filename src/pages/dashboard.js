@@ -3,7 +3,6 @@ import { renderShell, bindShellEvents } from '../components/shell.js';
 import { pillHTML, formatCurrency, formatDate, vehicleIcon, animateCounters } from '../utils/helpers.js';
 import { router } from '../utils/router.js';
 
-/* ─── Multi-select filter state (Sets) ──────────────────────── */
 let dashVehicleTypes = new Set();   // empty = All
 let dashStatuses = new Set();       // empty = All
 let dashRegions = new Set();        // empty = All
@@ -26,7 +25,6 @@ export async function renderDashboard() {
   let activeTrips = store.trips.filter(t => t.status === 'Dispatched').sort((a, b) => new Date(b.dispatchedAt || b.createdAt) - new Date(a.dispatchedAt || a.createdAt));
   let vehicles = store.vehicles.filter(v => v.status !== 'Retired');
 
-  /* ─── Apply multi-select filters ─── */
   if (dashVehicleTypes.size) vehicles = vehicles.filter(v => dashVehicleTypes.has(v.type));
   if (dashStatuses.size) vehicles = vehicles.filter(v => dashStatuses.has(v.status));
   if (dashRegions.size) vehicles = vehicles.filter(v => dashRegions.has(v.region));
@@ -55,7 +53,6 @@ export async function renderDashboard() {
 
   const filterCount = activeFilterCount();
 
-  /* ─── Chip HTML helper (multi-select with checkmark) ─── */
   const multiChip = (label, value, set, dataAttr) => {
     const isActive = set.has(value);
     return `<button class="chip ${isActive ? 'active' : ''}" ${dataAttr}="${value}">
@@ -318,7 +315,6 @@ export async function renderDashboard() {
   bindShellEvents();
   animateCounters();
 
-  /* ─── Event Bindings ─── */
   document.getElementById('refresh-dashboard-btn')?.addEventListener('click', async () => {
     await store.fetchAll();
     renderDashboard();
@@ -338,13 +334,11 @@ export async function renderDashboard() {
     } catch (e) { }
   });
 
-  /* ─── Search ─── */
   document.getElementById('dash-search')?.addEventListener('input', (e) => {
     dashSearch = e.target.value;
     renderDashboard();
   });
 
-  /* ─── Multi-select: Vehicle Type ─── */
   document.querySelectorAll('#dash-vehicle-type .chip').forEach(c => {
     c.addEventListener('click', () => {
       toggleFilter(dashVehicleTypes, c.dataset.type);
@@ -352,7 +346,6 @@ export async function renderDashboard() {
     });
   });
 
-  /* ─── Multi-select: Status ─── */
   document.querySelectorAll('#dash-status .chip').forEach(c => {
     c.addEventListener('click', () => {
       toggleFilter(dashStatuses, c.dataset.status);
@@ -360,7 +353,6 @@ export async function renderDashboard() {
     });
   });
 
-  /* ─── Multi-select: Region ─── */
   document.querySelectorAll('#dash-region .chip').forEach(c => {
     c.addEventListener('click', () => {
       toggleFilter(dashRegions, c.dataset.region);
@@ -368,7 +360,6 @@ export async function renderDashboard() {
     });
   });
 
-  /* ─── Clear All Filters ─── */
   document.getElementById('clear-all-filters')?.addEventListener('click', () => {
     dashVehicleTypes.clear();
     dashStatuses.clear();
@@ -377,7 +368,6 @@ export async function renderDashboard() {
     renderDashboard();
   });
 
-  /* ─── Nav links ─── */
   document.querySelectorAll('[data-nav]').forEach(el => {
     el.addEventListener('click', () => { const path = el.dataset.nav; if (path) router.navigate(path); });
   });

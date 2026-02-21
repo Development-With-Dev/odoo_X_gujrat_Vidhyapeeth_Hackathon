@@ -2,9 +2,6 @@ import { store } from '../store/data.js';
 import { router } from '../utils/router.js';
 import { toast } from '../utils/helpers.js';
 
-/* ════════════════════════════════════════════════════════════════
-   LOGIN PAGE  — default auth view
-   ════════════════════════════════════════════════════════════════ */
 export function renderLogin() {
   const app = document.getElementById('app');
   app.innerHTML = `
@@ -152,9 +149,6 @@ export function renderLogin() {
   bindLoginEvents();
 }
 
-/* ════════════════════════════════════════════════════════════════
-   REGISTER PAGE
-   ════════════════════════════════════════════════════════════════ */
 export function renderRegister() {
   const app = document.getElementById('app');
   app.innerHTML = `
@@ -229,9 +223,6 @@ export function renderRegister() {
   bindRegisterEvents();
 }
 
-/* ════════════════════════════════════════════════════════════════
-   SHARED HERO PANEL
-   ════════════════════════════════════════════════════════════════ */
 function heroPanel() {
   return `
     <div class="login-hero">
@@ -263,9 +254,6 @@ function heroPanel() {
     </div>`;
 }
 
-/* ════════════════════════════════════════════════════════════════
-   EVENT HANDLERS
-   ════════════════════════════════════════════════════════════════ */
 function bindLoginEvents() {
   const modal = document.getElementById('forgot-modal');
   const step1 = document.getElementById('forgot-step-1');
@@ -285,7 +273,6 @@ function bindLoginEvents() {
     modal.style.display = 'none';
     showStep(1);
     if (timerInterval) clearInterval(timerInterval);
-    // Reset fields
     document.getElementById('forgot-email').value = '';
     document.getElementById('forgot-otp').value = '';
     document.getElementById('forgot-new-pass').value = '';
@@ -339,7 +326,6 @@ function bindLoginEvents() {
     }
   }
 
-  // Open modal
   document.getElementById('forgot-password')?.addEventListener('click', (e) => {
     e.preventDefault();
     modal.style.display = 'flex';
@@ -349,7 +335,6 @@ function bindLoginEvents() {
   document.getElementById('forgot-cancel')?.addEventListener('click', closeModal);
   modal?.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
 
-  // Step 1 → Step 2 : Send OTP
   document.getElementById('forgot-send-otp')?.addEventListener('click', async () => {
     const email = document.getElementById('forgot-email').value.trim();
     if (!email) { showError(1, 'Please enter your email'); return; }
@@ -365,20 +350,17 @@ function bindLoginEvents() {
     }
   });
 
-  // Step 2 → Step 1 : Back
   document.getElementById('forgot-back-1')?.addEventListener('click', () => {
     if (timerInterval) clearInterval(timerInterval);
     showStep(1);
   });
 
-  // Step 2 : Resend
   document.getElementById('forgot-resend')?.addEventListener('click', async () => {
     document.getElementById('forgot-error-2').style.display = 'none';
     const ok = await sendOTP(resetEmail);
     if (ok) { startTimer(); toast('New verification code sent!', 'success'); }
   });
 
-  // Step 2 → Step 3 : Verify OTP
   document.getElementById('forgot-verify-otp')?.addEventListener('click', () => {
     const otp = document.getElementById('forgot-otp').value.trim();
     if (!otp || otp.length !== 6) { showError(2, 'Please enter a valid 6-digit code'); return; }
@@ -387,10 +369,8 @@ function bindLoginEvents() {
     showStep(3);
   });
 
-  // Step 3 → Step 2 : Back
   document.getElementById('forgot-back-2')?.addEventListener('click', () => showStep(2));
 
-  // Step 3 : Reset Password
   document.getElementById('forgot-reset-pass')?.addEventListener('click', async () => {
     const newPass = document.getElementById('forgot-new-pass').value;
     const confirmPass = document.getElementById('forgot-confirm-pass').value;
@@ -422,7 +402,6 @@ function bindLoginEvents() {
     }
   });
 
-  // Login form
   document.getElementById('login-form')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn = document.getElementById('login-btn');

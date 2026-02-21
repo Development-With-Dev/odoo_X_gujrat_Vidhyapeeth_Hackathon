@@ -2,10 +2,6 @@ export function formatCurrency(amount) {
   return '₹' + Number(amount).toLocaleString('en-IN');
 }
 
-/**
- * Animate all elements with [data-count] from 0 to their target value.
- * Call after rendering KPI cards. Supports ₹, %, decimals, and compact (K/L/Cr).
- */
 export function animateCounters(selector = '[data-count]', duration = 1200) {
   document.querySelectorAll(selector).forEach(el => {
     const raw = el.getAttribute('data-count');
@@ -119,7 +115,6 @@ export function exportCSV(data, filename) {
   URL.revokeObjectURL(url);
 }
 
-
 export function exportExcel(sheets, filename) {
   import('xlsx').then(XLSX => {
     const wb = XLSX.utils.book_new();
@@ -188,7 +183,6 @@ export function exportPDF({ title, generated, sections, charts, kpis }) {
         print-color-adjust: exact !important;
       }
 
-      /* ─── LETTERHEAD ─── */
       .letterhead {
         display: flex;
         align-items: center;
@@ -229,7 +223,6 @@ export function exportPDF({ title, generated, sections, charts, kpis }) {
         font-size: 9px; letter-spacing: 0.5px; margin-top: 4px;
       }
 
-      /* ─── TITLE BAR ─── */
       .title-bar {
         text-align: center;
         padding: 20px 36px;
@@ -244,7 +237,6 @@ export function exportPDF({ title, generated, sections, charts, kpis }) {
 
       .content { padding: 28px 36px; }
 
-      /* ─── EXECUTIVE SUMMARY KPIs ─── */
       .kpi-row {
         display: flex; gap: 12px; margin-bottom: 24px;
         flex-wrap: wrap;
@@ -260,7 +252,6 @@ export function exportPDF({ title, generated, sections, charts, kpis }) {
       .kpi-val { font-size: 20px; font-weight: 800; }
       .kpi-lbl { font-size: 9px; color: #64748b; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600; margin-top: 2px; }
 
-      /* ─── SECTIONS ─── */
       .section {
         margin-bottom: 22px;
         page-break-inside: avoid;
@@ -281,7 +272,6 @@ export function exportPDF({ title, generated, sections, charts, kpis }) {
         font-size: 10px; font-weight: 800;
       }
 
-      /* ─── TABLES ─── */
       table {
         width: 100%; border-collapse: collapse;
         font-size: 10px; margin-bottom: 6px;
@@ -315,7 +305,6 @@ export function exportPDF({ title, generated, sections, charts, kpis }) {
         border: 1px dashed #cbd5e1;
       }
 
-      /* ─── CHARTS ─── */
       .charts-header {
         font-size: 14px; font-weight: 800; color: #1e293b;
         padding: 10px 14px; margin: 24px 0 16px;
@@ -353,7 +342,6 @@ export function exportPDF({ title, generated, sections, charts, kpis }) {
         border-radius: 0 0 8px 8px;
       }
 
-      /* ─── FOOTER ─── */
       .page-footer {
         margin-top: 32px;
         padding: 16px 36px;
@@ -376,7 +364,6 @@ export function exportPDF({ title, generated, sections, charts, kpis }) {
         letter-spacing: 0.5px;
       }
 
-      /* ─── WATERMARK ─── */
       .watermark {
         position: fixed; top: 50%; left: 50%;
         transform: translate(-50%, -50%) rotate(-35deg);
@@ -387,7 +374,6 @@ export function exportPDF({ title, generated, sections, charts, kpis }) {
         white-space: nowrap;
       }
 
-      /* ─── PRINT ─── */
       @media print {
         body { padding: 0; }
         .no-print { display: none; }
@@ -462,7 +448,6 @@ export function exportPDF({ title, generated, sections, charts, kpis }) {
 
     <script>
       window.onload = function() {
-        // Small delay to let images render
         setTimeout(function() { window.print(); }, 400);
       };
     <\/script>

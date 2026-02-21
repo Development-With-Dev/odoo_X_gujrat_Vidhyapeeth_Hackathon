@@ -5,7 +5,6 @@ import { Chart, registerables } from 'chart.js';
 
 Chart.register(...registerables);
 
-/* ─── Custom crosshair plugin ────────────────────────────── */
 const crosshairPlugin = {
   id: 'crosshair',
   afterDraw(chart) {
@@ -27,7 +26,6 @@ const crosshairPlugin = {
   }
 };
 
-/* ─── Custom center text plugin for doughnut ──────────────── */
 const centerTextPlugin = {
   id: 'centerText',
   afterDraw(chart) {
@@ -52,7 +50,6 @@ const centerTextPlugin = {
 
 Chart.register(crosshairPlugin, centerTextPlugin);
 
-/* ─── Color Palette (Premium Dark Theme) ─────────────────── */
 const C = {
   primary: '#4C6EF5', primaryLight: '#748FFC', primaryGlow: 'rgba(76,110,245,0.35)',
   success: '#34D399', successLight: '#6EE7B7', successGlow: 'rgba(52,211,153,0.25)',
@@ -65,7 +62,6 @@ const C = {
   grid: 'rgba(255,255,255,0.04)', bgCard: '#1A1F2E',
 };
 
-/* ─── Gradient helper ────────────────────────────────────── */
 function makeGradient(ctx, chartArea, c1, c2) {
   const g = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
   g.addColorStop(0, c1);
@@ -73,7 +69,6 @@ function makeGradient(ctx, chartArea, c1, c2) {
   return g;
 }
 
-/* ─── Shared tooltip ─────────────────────────────────────── */
 const prettyTooltip = {
   backgroundColor: 'rgba(11,15,25,0.95)', titleColor: '#E8ECF4', bodyColor: '#9CA3B4',
   borderColor: 'rgba(76,110,245,0.25)', borderWidth: 1, padding: 14, cornerRadius: 10,
@@ -85,7 +80,6 @@ const prettyTooltip = {
   animation: { duration: 150 },
 };
 
-/* ─── Chart instance manager ─────────────────────────────── */
 const instances = {};
 function makeChart(id, cfg) {
   if (instances[id]) instances[id].destroy();
@@ -95,9 +89,6 @@ function makeChart(id, cfg) {
   return instances[id];
 }
 
-/* ═══════════════════════════════════════════════════════════
-   RENDER
-   ═══════════════════════════════════════════════════════════ */
 export function renderAnalytics() {
   const app = document.getElementById('app');
   const vehicles = store.vehicles.filter(v => v.status !== 'Retired');
@@ -108,7 +99,6 @@ export function renderAnalytics() {
   const totalExpense = store.expenses.reduce((s, e) => s + e.amount, 0);
   const netProfit = totalRevenue - totalFuel - totalMaint - totalExpense;
 
-  /* ─── Vehicle metrics ─── */
   const vm = vehicles.map(v => {
     const fl = store.getFuelLogsForVehicle(v.id);
     const liters = fl.reduce((s, f) => s + f.liters, 0);
@@ -120,13 +110,11 @@ export function renderAnalytics() {
     const roi = Number(store.getVehicleROI(v.id));
     const cpk = km > 0 ? (ops / km).toFixed(1) : '—';
 
-    /* ─── Last Trip Cost per KM (Fuel) ─── */
     let lastTripFuelCpk = 0;
     if (vTrips.length) {
       const lastT = vTrips[0];
       const tKm = (lastT.endOdometer || 0) - (lastT.startOdometer || 0);
       if (tKm > 0) {
-        // Find fuel logs recorded near or for this trip
         const tDate = new Date(lastT.completedAt || lastT.dispatchedAt).getTime();
         const nearestFuel = fl.sort((a, b) => Math.abs(new Date(a.date).getTime() - tDate) - Math.abs(new Date(b.date).getTime() - tDate))[0];
         if (nearestFuel) {
@@ -145,7 +133,6 @@ export function renderAnalytics() {
   const avgEff = vm.filter(v => v.eff > 0).length > 0 ? +(vm.filter(v => v.eff > 0).reduce((s, v) => s + v.eff, 0) / vm.filter(v => v.eff > 0).length).toFixed(1) : 0;
   const deadVehicles = vm.filter(v => v.dead);
 
-  /* ─── Monthly aggregation ─── */
   const mm = {};
   const addMonth = (date, field, val) => {
     if (!date) return;
@@ -165,10 +152,8 @@ export function renderAnalytics() {
   const mProfit = mKeys.map((_, i) => mRev[i] - mCost[i]);
   const mTrips = mKeys.map(k => mm[k].trips);
 
-  /* ─── Driver radar data ─── */
   const topDrivers = [...store.drivers].sort((a, b) => b.safetyScore - a.safetyScore).slice(0, 5);
 
-  /* ═══ HTML ═══ */
   const body = `
   <div class="kpi-grid">
     <div class="kpi-card animate-slide-up stagger-1"><div class="kpi-icon green"><span class="material-symbols-rounded">trending_up</span></div>
@@ -274,9 +259,6 @@ export function renderAnalytics() {
   bindShellEvents();
   animateCounters();
 
-  /* ═══════════════════════════════════════════════════════════
-     CHART 1 — REVENUE & COST TREND (Dual Line + Area)
-     ═══════════════════════════════════════════════════════════ */
   makeChart('ch-trend', {
     type: 'line',
     data: {
@@ -333,9 +315,6 @@ export function renderAnalytics() {
     },
   });
 
-  /* ═══════════════════════════════════════════════════════════
-     CHART 2 — COST DOUGHNUT
-     ═══════════════════════════════════════════════════════════ */
   makeChart('ch-donut', {
     type: 'doughnut',
     data: {
@@ -367,9 +346,6 @@ export function renderAnalytics() {
     },
   });
 
-  /* ═══════════════════════════════════════════════════════════
-     CHART 3 — MONTHLY TRIPS (Gradient Bar)
-     ═══════════════════════════════════════════════════════════ */
   makeChart('ch-trips', {
     type: 'bar',
     data: {
@@ -400,9 +376,6 @@ export function renderAnalytics() {
     },
   });
 
-  /* ═══════════════════════════════════════════════════════════
-     CHART 4 — FUEL EFFICIENCY (Horizontal Bar, color-coded)
-     ═══════════════════════════════════════════════════════════ */
   const fuelD = vm.filter(v => v.eff > 0).sort((a, b) => b.eff - a.eff);
   makeChart('ch-fuel', {
     type: 'bar',
@@ -435,9 +408,6 @@ export function renderAnalytics() {
     },
   });
 
-  /* ═══════════════════════════════════════════════════════════
-     CHART 5 — LAST TRIP FUEL CPK (Bar)
-     ═══════════════════════════════════════════════════════════ */
   const cpkD = [...vm].sort((a, b) => b.lastTripFuelCpk - a.lastTripFuelCpk);
   makeChart('ch-last-cpk', {
     type: 'bar',
@@ -476,9 +446,6 @@ export function renderAnalytics() {
     }
   });
 
-  /* ═══════════════════════════════════════════════════════════
-     CHART 6 — VEHICLE ROI (Grouped Horizontal, Rev vs Cost)
-     ═══════════════════════════════════════════════════════════ */
   const roiD = [...vm].sort((a, b) => b.roi - a.roi);
   makeChart('ch-roi', {
     type: 'bar',
@@ -530,9 +497,6 @@ export function renderAnalytics() {
     },
   });
 
-  /* ═══════════════════════════════════════════════════════════
-     CHART 6 — MONTHLY PROFIT (Line + Gradient Area)
-     ═══════════════════════════════════════════════════════════ */
   makeChart('ch-profit', {
     type: 'line',
     data: {
@@ -576,9 +540,6 @@ export function renderAnalytics() {
     },
   });
 
-  /* ═══════════════════════════════════════════════════════════
-     CHART 7 — DRIVER RADAR
-     ═══════════════════════════════════════════════════════════ */
   const radarColors = [C.primary, C.success, C.warning, C.danger, C.info];
   makeChart('ch-radar', {
     type: 'radar',
@@ -622,9 +583,6 @@ export function renderAnalytics() {
     },
   });
 
-  /* ═══════════════════════════════════════════════════════════
-     EVENT BINDINGS
-     ═══════════════════════════════════════════════════════════ */
   const report = () => {
     const f = { Category: 'Revenue', Amount: totalRevenue };
     const fin = [f, { Category: 'Fuel', Amount: totalFuel }, { Category: 'Maintenance', Amount: totalMaint }, { Category: 'Other', Amount: totalExpense }, { Category: 'Net Profit', Amount: netProfit }];
@@ -648,7 +606,6 @@ export function renderAnalytics() {
   const doPDF = () => {
     const r = report();
 
-    /* ─── Capture all chart canvases as base64 images ─── */
     const chartIds = [
       { id: 'ch-trend', title: 'Revenue & Cost Trend — Monthly Performance' },
       { id: 'ch-donut', title: 'Cost Breakdown — Fuel vs Maintenance vs Other' },
@@ -668,7 +625,6 @@ export function renderAnalytics() {
       }
     }
 
-    /* ─── Executive Summary KPIs ─── */
     const profitMargin = totalRevenue > 0 ? ((netProfit / totalRevenue) * 100).toFixed(1) + '%' : '0%';
     const pdfKpis = [
       { label: 'Total Revenue', value: formatCurrency(totalRevenue), color: '#22c55e' },

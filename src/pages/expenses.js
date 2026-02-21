@@ -272,7 +272,6 @@ function showFuelModal() {
   overlay.querySelector('#cancel-modal').addEventListener('click', close);
   overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
 
-  /* ─── Dynamic trip filtering on vehicle change ─── */
   const vehicleSelect = overlay.querySelector('#fuel-vehicle-select');
   const tripSelect = overlay.querySelector('#fuel-trip-select');
   const tripHint = overlay.querySelector('#fuel-trip-hint');
