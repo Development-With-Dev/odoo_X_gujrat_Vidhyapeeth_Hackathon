@@ -90,6 +90,16 @@ export function exportCSV(data, filename) {
     URL.revokeObjectURL(url);
 }
 
+export function exportExcel(data, filename, sheetName = 'Report') {
+    if (!data.length) return;
+    import('xlsx').then(XLSX => {
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, sheetName);
+        XLSX.writeFile(wb, filename);
+    });
+}
+
 export function debounce(fn, ms = 300) {
     let timer;
     return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), ms); };
