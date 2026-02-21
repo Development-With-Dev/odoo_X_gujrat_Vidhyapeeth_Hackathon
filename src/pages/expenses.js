@@ -211,7 +211,7 @@ export function renderExpenses() {
 
 function showFuelModal() {
   const vehicles = store.vehicles.filter(v => v.status !== 'Retired');
-  const completedTrips = store.trips.filter(t => t.status === 'Completed');
+  const allCompletedTrips = store.trips.filter(t => t.status === 'Completed');
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
   overlay.innerHTML = `
@@ -225,17 +225,17 @@ function showFuelModal() {
           <div class="form-row-2">
             <div class="form-group">
               <label class="form-label">Vehicle</label>
-              <select class="form-select" name="vehicleId" required>
+              <select class="form-select" name="vehicleId" id="fuel-vehicle-select" required>
                 <option value="">Select...</option>
                 ${vehicles.map(v => `<option value="${v.id}">${v.name} (${v.licensePlate})</option>`).join('')}
               </select>
             </div>
             <div class="form-group">
               <label class="form-label">Linked Trip (Optional)</label>
-              <select class="form-select" name="tripId">
-                <option value="">None</option>
-                ${completedTrips.map(t => `<option value="${t.id}">${t.origin} → ${t.destination}</option>`).join('')}
+              <select class="form-select" name="tripId" id="fuel-trip-select" disabled>
+                <option value="">Select a vehicle first</option>
               </select>
+              <span id="fuel-trip-hint" style="font-size:var(--fs-xs);color:var(--text-muted);margin-top:2px;display:block"></span>
             </div>
           </div>
           <div class="form-row-2">
@@ -271,6 +271,33 @@ function showFuelModal() {
   overlay.querySelector('#close-modal').addEventListener('click', close);
   overlay.querySelector('#cancel-modal').addEventListener('click', close);
   overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+
+  /* ─── Dynamic trip filtering on vehicle change ─── */
+  const vehicleSelect = overlay.querySelector('#fuel-vehicle-select');
+  const tripSelect = overlay.querySelector('#fuel-trip-select');
+  const tripHint = overlay.querySelector('#fuel-trip-hint');
+
+  vehicleSelect.addEventListener('change', () => {
+    const selectedVehicleId = vehicleSelect.value;
+    tripSelect.innerHTML = '';
+
+    if (!selectedVehicleId) {
+      tripSelect.disabled = true;
+      tripSelect.innerHTML = '<option value="">Select a vehicle first</option>';
+      tripHint.textContent = '';
+      return;
+    }
+
+    const vehicleTrips = allCompletedTrips.filter(t => t.vehicleId === selectedVehicleId);
+    tripSelect.disabled = false;
+    tripSelect.innerHTML = `<option value="">None</option>` +
+      vehicleTrips.map(t => `<option value="${t.id}">${t.origin} → ${t.destination}</option>`).join('');
+
+    tripHint.textContent = vehicleTrips.length
+      ? `${vehicleTrips.length} completed trip${vehicleTrips.length > 1 ? 's' : ''} found`
+      : 'No completed trips for this vehicle';
+    tripHint.style.color = vehicleTrips.length ? 'var(--c-success)' : 'var(--text-muted)';
+  });
 
   overlay.querySelector('#fuel-form').addEventListener('submit', async (e) => {
     e.preventDefault();
