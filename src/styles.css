@@ -1945,3 +1945,21 @@ button {
     grid-template-columns: 1fr;
   }
 }
+
+/* ─── Chart Container (REQUIRED by Chart.js) ─── */
+.chart-container {
+  position: relative;
+  width: 100%;
+}
+
+.chart-container canvas {
+  width: 100% !important;
+}
+
+.analytics-chart-card .card-body {
+  padding: var(--sp-4);
+}
+
+.analytics-chart-card .card-header {
+  padding: var(--sp-4) var(--sp-5);
+}

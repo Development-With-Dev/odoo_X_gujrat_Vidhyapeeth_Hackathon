@@ -103,20 +103,21 @@ export function renderAnalytics() {
   const vehicles = store.vehicles.filter(v => v.status !== 'Retired');
   const completedTrips = store.trips.filter(t => t.status === 'Completed');
   const totalRevenue = completedTrips.reduce((s, t) => s + (t.revenue || 0), 0);
-  const totalFuel = store.fuelLogs.reduce((s, f) => s + f.totalCost, 0);
-  const totalMaint = store.maintenance.reduce((s, m) => s + m.cost, 0);
-  const totalExpense = store.expenses.reduce((s, e) => s + e.amount, 0);
+  const totalFuel = store.fuelLogs.reduce((s, f) => s + (f.totalCost || 0), 0);
+  const totalMaint = store.maintenance.reduce((s, m) => s + (m.cost || 0), 0);
+  const totalExpense = store.expenses.reduce((s, e) => s + (e.amount || 0), 0);
   const netProfit = totalRevenue - totalFuel - totalMaint - totalExpense;
 
   const vm = vehicles.map(v => {
-    const fl = store.getFuelLogsForVehicle(v.id);
-    const liters = fl.reduce((s, f) => s + f.liters, 0);
-    const vTrips = store.trips.filter(t => t.vehicleId === v.id && t.status === 'Completed').sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt));
+    const fl = store.getFuelLogsForVehicle(v.id || v._id);
+    const liters = fl.reduce((s, f) => s + (f.liters || 0), 0);
+    const vid = v.id || v._id;
+    const vTrips = store.trips.filter(t => (t.vehicleId === vid || String(t.vehicleId) === String(vid)) && t.status === 'Completed').sort((a, b) => new Date(b.completedAt || b.createdAt) - new Date(a.completedAt || a.createdAt));
     const km = vTrips.reduce((s, t) => (t.endOdometer && t.startOdometer) ? s + (t.endOdometer - t.startOdometer) : s, 0);
     const eff = liters > 0 ? parseFloat((km / liters).toFixed(1)) : 0;
-    const rev = store.getTotalRevenue(v.id);
-    const ops = store.getTotalOperationalCost(v.id);
-    const roi = Number(store.getVehicleROI(v.id));
+    const rev = store.getTotalRevenue(vid);
+    const ops = store.getTotalOperationalCost(vid);
+    const roi = Number(store.getVehicleROI(vid)) || 0;
     const cpk = km > 0 ? (ops / km).toFixed(1) : '—';
 
     let lastTripFuelCpk = 0;
@@ -124,15 +125,15 @@ export function renderAnalytics() {
       const lastT = vTrips[0];
       const tKm = (lastT.endOdometer || 0) - (lastT.startOdometer || 0);
       if (tKm > 0) {
-        const tDate = new Date(lastT.completedAt || lastT.dispatchedAt).getTime();
-        const nearestFuel = fl.sort((a, b) => Math.abs(new Date(a.date).getTime() - tDate) - Math.abs(new Date(b.date).getTime() - tDate))[0];
-        if (nearestFuel) {
-          lastTripFuelCpk = parseFloat((nearestFuel.totalCost / tKm).toFixed(2));
+        const tDate = new Date(lastT.completedAt || lastT.dispatchedAt || lastT.createdAt).getTime();
+        const sortedFl = [...fl].sort((a, b) => Math.abs(new Date(a.date).getTime() - tDate) - Math.abs(new Date(b.date).getTime() - tDate));
+        if (sortedFl.length && sortedFl[0]) {
+          lastTripFuelCpk = parseFloat(((sortedFl[0].totalCost || 0) / tKm).toFixed(2));
         }
       }
     }
 
-    const allT = store.trips.filter(t => t.vehicleId === v.id);
+    const allT = store.trips.filter(t => t.vehicleId === vid || String(t.vehicleId) === String(vid));
     const last = allT.length ? allT.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0].createdAt : null;
     const idle = last ? Math.floor((Date.now() - new Date(last)) / 864e5) : 999;
     const dead = v.status === 'Available' && (idle > 7 || vTrips.length === 0);
@@ -146,20 +147,25 @@ export function renderAnalytics() {
   const addMonth = (date, field, val) => {
     if (!date) return;
     const d = new Date(date);
+    if (isNaN(d.getTime())) return;
     const k = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
     if (!mm[k]) mm[k] = { rev: 0, fuel: 0, maint: 0, exp: 0, trips: 0 };
-    mm[k][field] += val;
+    mm[k][field] += (val || 0);
   };
-  store.trips.forEach(t => { addMonth(t.createdAt, 'trips', 1); if (t.status === 'Completed') addMonth(t.createdAt, 'rev', t.revenue || 0); });
-  store.fuelLogs.forEach(f => addMonth(f.date, 'fuel', f.totalCost || 0));
-  store.maintenance.forEach(m => addMonth(m.date, 'maint', m.cost || 0));
-  store.expenses.forEach(e => addMonth(e.date, 'exp', e.amount || 0));
+  store.trips.forEach(t => {
+    const tripDate = t.completedAt || t.dispatchedAt || t.createdAt;
+    addMonth(t.createdAt, 'trips', 1);
+    if (t.status === 'Completed') addMonth(tripDate, 'rev', t.revenue || 0);
+  });
+  store.fuelLogs.forEach(f => addMonth(f.date || f.createdAt, 'fuel', f.totalCost || 0));
+  store.maintenance.forEach(m => addMonth(m.date || m.createdAt, 'maint', m.cost || 0));
+  store.expenses.forEach(e => addMonth(e.date || e.createdAt, 'exp', e.amount || 0));
   const mKeys = Object.keys(mm).sort();
   const mLabels = mKeys.map(k => { const [y, m] = k.split('-'); return new Date(y, m - 1).toLocaleDateString('en-IN', { month: 'short', year: '2-digit' }); });
-  const mRev = mKeys.map(k => mm[k].rev);
-  const mCost = mKeys.map(k => mm[k].fuel + mm[k].maint + mm[k].exp);
+  const mRev = mKeys.map(k => mm[k].rev || 0);
+  const mCost = mKeys.map(k => (mm[k].fuel || 0) + (mm[k].maint || 0) + (mm[k].exp || 0));
   const mProfit = mKeys.map((_, i) => mRev[i] - mCost[i]);
-  const mTrips = mKeys.map(k => mm[k].trips);
+  const mTrips = mKeys.map(k => mm[k].trips || 0);
 
   const topDrivers = [...store.drivers].sort((a, b) => b.safetyScore - a.safetyScore).slice(0, 5);
 
