@@ -8,7 +8,9 @@ Chart.register(...registerables);
 const crosshairPlugin = {
   id: 'crosshair',
   afterDraw(chart) {
-    if (chart.tooltip?._active?.length) {
+    if (!chart.tooltip?._active?.length) return;
+    if (!chart.scales?.y) return;
+    try {
       const ctx = chart.ctx;
       const x = chart.tooltip._active[0].element.x;
       const topY = chart.scales.y.top;
@@ -22,7 +24,7 @@ const crosshairPlugin = {
       ctx.strokeStyle = 'rgba(76,110,245,0.4)';
       ctx.stroke();
       ctx.restore();
-    }
+    } catch (e) { }
   }
 };
 
@@ -30,21 +32,23 @@ const centerTextPlugin = {
   id: 'centerText',
   afterDraw(chart) {
     if (chart.config.type !== 'doughnut') return;
-    const { ctx, width, height } = chart;
-    const meta = chart.getDatasetMeta(0);
-    const total = meta.total;
-    ctx.save();
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.font = '800 22px Inter, sans-serif';
-    ctx.fillStyle = '#E8ECF4';
-    const cx = width / 2;
-    const cy = height / 2 - 6;
-    ctx.fillText('₹' + (total >= 100000 ? (total / 100000).toFixed(1) + 'L' : total >= 1000 ? (total / 1000).toFixed(0) + 'K' : total), cx, cy);
-    ctx.font = '500 11px Inter, sans-serif';
-    ctx.fillStyle = '#5C6478';
-    ctx.fillText('Total Cost', cx, cy + 22);
-    ctx.restore();
+    try {
+      const { ctx, width, height } = chart;
+      const meta = chart.getDatasetMeta(0);
+      const total = meta.total || 0;
+      ctx.save();
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.font = '800 22px Inter, sans-serif';
+      ctx.fillStyle = '#E8ECF4';
+      const cx = width / 2;
+      const cy = height / 2 - 6;
+      ctx.fillText('₹' + (total >= 100000 ? (total / 100000).toFixed(1) + 'L' : total >= 1000 ? (total / 1000).toFixed(0) + 'K' : total), cx, cy);
+      ctx.font = '500 11px Inter, sans-serif';
+      ctx.fillStyle = '#5C6478';
+      ctx.fillText('Total Cost', cx, cy + 22);
+      ctx.restore();
+    } catch (e) { }
   }
 };
 
@@ -82,11 +86,16 @@ const prettyTooltip = {
 
 const instances = {};
 function makeChart(id, cfg) {
-  if (instances[id]) instances[id].destroy();
-  const el = document.getElementById(id);
-  if (!el) return;
-  instances[id] = new Chart(el.getContext('2d'), cfg);
-  return instances[id];
+  try {
+    if (instances[id]) { instances[id].destroy(); delete instances[id]; }
+    const el = document.getElementById(id);
+    if (!el) return null;
+    instances[id] = new Chart(el.getContext('2d'), cfg);
+    return instances[id];
+  } catch (e) {
+    console.error('[Chart Error]', id, e);
+    return null;
+  }
 }
 
 export function renderAnalytics() {
@@ -364,7 +373,7 @@ export function renderAnalytics() {
     },
     options: {
       responsive: true, maintainAspectRatio: false,
-      animation: { duration: 1000, easing: 'easeOutQuart', delay: ctx => ctx.dataIndex * 80 },
+      animation: { duration: 1000, easing: 'easeOutQuart' },
       plugins: {
         legend: { display: false },
         tooltip: { ...prettyTooltip, callbacks: { label: c => `${c.parsed.y} trips` } },
@@ -396,7 +405,7 @@ export function renderAnalytics() {
     options: {
       responsive: true, maintainAspectRatio: false,
       indexAxis: 'y',
-      animation: { duration: 1200, easing: 'easeOutQuart', delay: ctx => ctx.dataIndex * 60 },
+      animation: { duration: 1200, easing: 'easeOutQuart' },
       plugins: {
         legend: { display: false },
         tooltip: { ...prettyTooltip, callbacks: { label: c => { const v = fuelD[c.dataIndex]; return [`${c.parsed.x} km/L`, `${v.km.toLocaleString()} km driven`, `${v.liters} L consumed`]; } } },
@@ -479,7 +488,7 @@ export function renderAnalytics() {
     options: {
       responsive: true, maintainAspectRatio: false,
       indexAxis: 'y',
-      animation: { duration: 1200, easing: 'easeOutQuart', delay: ctx => ctx.dataIndex * 50 },
+      animation: { duration: 1200, easing: 'easeOutQuart' },
       plugins: {
         legend: { labels: { color: C.textSec, font: { family: "'Inter'" }, usePointStyle: true, pointStyle: 'rectRounded', padding: 18 } },
         tooltip: {

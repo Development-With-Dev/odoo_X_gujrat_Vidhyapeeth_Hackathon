@@ -384,7 +384,8 @@ class Store {
     }
 
     getMaintenanceForVehicle(vehicleId) {
-        return this._data.maintenance.filter(m => (m.vehicleId || m.vehicleId?.toString()) === (vehicleId?.toString?.() || vehicleId));
+        const id = String(vehicleId);
+        return this._data.maintenance.filter(m => String(m.vehicleId) === id);
     }
 
     get fuelLogs() { return [...this._data.fuelLogs]; }
@@ -409,8 +410,8 @@ class Store {
     }
 
     getFuelLogsForVehicle(vehicleId) {
-        const id = vehicleId?.toString?.() || vehicleId;
-        return this._data.fuelLogs.filter(f => (f.vehicleId || f.vehicleId?.toString()) === id);
+        const id = String(vehicleId);
+        return this._data.fuelLogs.filter(f => String(f.vehicleId) === id);
     }
 
     get expenses() { return [...this._data.expenses]; }
@@ -434,8 +435,8 @@ class Store {
     }
 
     getExpensesForVehicle(vehicleId) {
-        const id = vehicleId?.toString?.() || vehicleId;
-        return this._data.expenses.filter(e => (e.vehicleId || e.vehicleId?.toString()) === id);
+        const id = String(vehicleId);
+        return this._data.expenses.filter(e => String(e.vehicleId) === id);
     }
 
     getTotalFuelCost(vehicleId) {
@@ -451,9 +452,9 @@ class Store {
         return this.getTotalFuelCost(vehicleId) + this.getTotalMaintenanceCost(vehicleId) + this.getTotalExpenseCost(vehicleId);
     }
     getTotalRevenue(vehicleId) {
-        const id = vehicleId?.toString?.() || vehicleId;
+        const id = String(vehicleId);
         return this._data.trips
-            .filter(t => (t.vehicleId || t.vehicleId?.toString()) === id && t.status === 'Completed')
+            .filter(t => String(t.vehicleId) === id && t.status === 'Completed')
             .reduce((s, t) => s + (t.revenue || 0), 0);
     }
     getVehicleROI(vehicleId) {
