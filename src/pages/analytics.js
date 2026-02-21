@@ -660,15 +660,55 @@ export function renderAnalytics() {
   });
   const doPDF = () => {
     const r = report();
+
+    /* ─── Capture all chart canvases as base64 images ─── */
+    const chartIds = [
+      { id: 'ch-trend', title: 'Revenue & Cost Trend — Monthly Performance' },
+      { id: 'ch-donut', title: 'Cost Breakdown — Fuel vs Maintenance vs Other' },
+      { id: 'ch-trips', title: 'Monthly Trip Volume — Dispatch Activity' },
+      { id: 'ch-fuel', title: 'Fuel Efficiency per Vehicle (km/L)' },
+      { id: 'ch-last-cpk', title: 'Last Trip Fuel Performance (₹/km)' },
+      { id: 'ch-roi', title: 'Vehicle ROI — Revenue vs Operational Cost' },
+      { id: 'ch-profit', title: 'Monthly Profit Trend — Net Earnings' },
+      { id: 'ch-radar', title: 'Top Drivers — Performance Radar Analysis' },
+    ];
+    const chartImages = [];
+    for (const c of chartIds) {
+      const canvas = document.getElementById(c.id);
+      if (canvas) {
+        try { chartImages.push({ title: c.title, image: canvas.toDataURL('image/png', 1.0) }); }
+        catch (e) { console.warn('Could not capture chart:', c.id, e); }
+      }
+    }
+
+    /* ─── Executive Summary KPIs ─── */
+    const profitMargin = totalRevenue > 0 ? ((netProfit / totalRevenue) * 100).toFixed(1) + '%' : '0%';
+    const pdfKpis = [
+      { label: 'Total Revenue', value: formatCurrency(totalRevenue), color: '#22c55e' },
+      { label: 'Total Costs', value: formatCurrency(totalFuel + totalMaint + totalExpense), color: '#ef4444' },
+      { label: 'Net Profit', value: formatCurrency(netProfit), color: netProfit >= 0 ? '#22c55e' : '#ef4444' },
+      { label: 'Profit Margin', value: profitMargin, color: '#6366f1' },
+      { label: 'Completed Trips', value: String(completedTrips.length), color: '#3b82f6' },
+      { label: 'Fleet Size', value: String(vehicles.length), color: '#8b5cf6' },
+    ];
+
     exportPDF({
-      title: 'FleetFlow Analytics Report', generated: new Date().toLocaleString('en-IN'), sections: [
-        { heading: '💰 Financial Summary', rows: r.fin }, { heading: '🚛 Vehicle ROI', rows: r.vr },
-        { heading: '⚠️ Dead Stock', rows: r.ds }, { heading: '🗺️ Trips', rows: r.tr },
-        { heading: '⛽ Fuel', rows: r.fl }, { heading: '🔧 Maintenance', rows: r.mt },
-        { heading: '💸 Expenses', rows: r.ex }, { heading: '👤 Drivers', rows: r.dr },
+      title: 'FleetFlow Analytics Report',
+      generated: new Date().toLocaleString('en-IN', { dateStyle: 'long', timeStyle: 'short' }),
+      kpis: pdfKpis,
+      charts: chartImages,
+      sections: [
+        { heading: '💰 Financial Summary', rows: r.fin },
+        { heading: '🚛 Vehicle ROI & Performance', rows: r.vr },
+        { heading: '⚠️ Dead Stock Alerts', rows: r.ds },
+        { heading: '🗺️ Trip Records', rows: r.tr },
+        { heading: '⛽ Fuel Log Entries', rows: r.fl },
+        { heading: '🔧 Maintenance Records', rows: r.mt },
+        { heading: '💸 Expense Records', rows: r.ex },
+        { heading: '👤 Driver Performance', rows: r.dr },
       ]
     });
-    toast('PDF opened', 'success');
+    toast('Official PDF report with charts opened — Save as PDF', 'success');
   };
   document.getElementById('exp-pdf')?.addEventListener('click', doPDF);
   document.getElementById('exp-hdr')?.addEventListener('click', doPDF);
