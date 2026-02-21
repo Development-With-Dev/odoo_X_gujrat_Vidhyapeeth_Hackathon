@@ -82,18 +82,13 @@ export function renderVehicles() {
                 <td><span class="text-muted">${v.region}</span></td>
                 <td>${pillHTML(v.status)}</td>
                 <td>
-                  <div class="flex gap-2">
+                  <div class="flex gap-2" style="align-items:center">
                     <button class="btn btn-ghost btn-sm btn-icon" data-edit="${v.id}" title="Edit">
                       <span class="material-symbols-rounded" style="font-size:16px">edit</span>
                     </button>
-                    ${v.status === 'Available' ? `
-                    <button class="btn btn-ghost btn-sm btn-icon" data-retire="${v.id}" title="Retire">
-                      <span class="material-symbols-rounded" style="font-size:16px;color:var(--c-danger)">block</span>
-                    </button>` : ''}
-                    ${v.status === 'Retired' ? `
-                    <button class="btn btn-ghost btn-sm btn-icon" data-reactivate="${v.id}" title="Reactivate">
-                      <span class="material-symbols-rounded" style="font-size:16px;color:var(--c-success)">check_circle</span>
-                    </button>` : ''}
+                    <select class="form-select" data-status-select="${v.id}" style="padding:4px 28px 4px 8px;font-size:var(--fs-xs);width:auto;min-width:100px">
+                      ${['Available', 'On Trip', 'In Shop', 'Retired'].map(s => `<option ${v.status === s ? 'selected' : ''}>${s}</option>`).join('')}
+                    </select>
                     <button class="btn btn-ghost btn-sm btn-icon" data-delete="${v.id}" title="Delete permanently">
                       <span class="material-symbols-rounded" style="font-size:16px;color:var(--c-danger)">delete</span>
                     </button>
@@ -143,19 +138,10 @@ function bindVehicleEvents() {
     btn.addEventListener('click', () => showVehicleModal(btn.dataset.edit));
   });
 
-  document.querySelectorAll('[data-retire]').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      if (confirm('Mark this vehicle as Retired/Out of Service?')) {
-        const r = await store.updateVehicle(btn.dataset.retire, { status: 'Retired' });
-        if (r?.success) { toast('Vehicle retired', 'info'); renderVehicles(); } else toast(r?.error || 'Failed', 'error');
-      }
-    });
-  });
-
-  document.querySelectorAll('[data-reactivate]').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      const r = await store.updateVehicle(btn.dataset.reactivate, { status: 'Available' });
-      if (r?.success) { toast('Vehicle reactivated', 'success'); renderVehicles(); } else toast(r?.error || 'Failed', 'error');
+  document.querySelectorAll('[data-status-select]').forEach(sel => {
+    sel.addEventListener('change', async () => {
+      const r = await store.updateVehicle(sel.dataset.statusSelect, { status: sel.value });
+      if (r?.success) { toast(`Status → ${sel.value}`, 'info'); renderVehicles(); } else toast(r?.error || 'Failed', 'error');
     });
   });
 
