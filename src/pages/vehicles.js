@@ -175,11 +175,11 @@ function showVehicleModal(editId) {
           <div class="form-row-2">
             <div class="form-group">
               <label class="form-label">Vehicle Name</label>
-              <input class="form-input" name="name" required placeholder="e.g. Volvo FH-16" value="${vehicle?.name || ''}" />
+              <input class="form-input" name="name" required placeholder="e.g. Volvo FH-16" maxlength="80" value="${vehicle?.name || ''}" />
             </div>
             <div class="form-group">
               <label class="form-label">Model Year</label>
-              <input class="form-input" name="model" required placeholder="e.g. 2024" value="${vehicle?.model || ''}" />
+              <input class="form-input" name="model" required type="number" placeholder="e.g. 2024" min="1900" max="2100" value="${vehicle?.model || ''}" title="Enter a valid 4-digit year (1900–2100)" />
             </div>
           </div>
           <div class="form-row-2">
@@ -193,17 +193,17 @@ function showVehicleModal(editId) {
             </div>
             <div class="form-group">
               <label class="form-label">License Plate</label>
-              <input class="form-input" name="licensePlate" required placeholder="GJ-XX-YY-ZZZZ" value="${vehicle?.licensePlate || ''}" />
+              <input class="form-input" name="licensePlate" required placeholder="GJ-XX-YY-ZZZZ" maxlength="20" pattern="[A-Za-z0-9\\-]+" title="Letters, digits and hyphens only" value="${vehicle?.licensePlate || ''}" />
             </div>
           </div>
           <div class="form-row-2">
             <div class="form-group">
               <label class="form-label">Max Load Capacity (kg)</label>
-              <input class="form-input" name="maxCapacity" type="number" required placeholder="e.g. 5000" value="${vehicle?.maxCapacity || ''}" />
+              <input class="form-input" name="maxCapacity" type="number" required placeholder="e.g. 5000" min="1" max="100000" value="${vehicle?.maxCapacity || ''}" title="Enter capacity between 1 and 100,000 kg" />
             </div>
             <div class="form-group">
               <label class="form-label">Odometer (km)</label>
-              <input class="form-input" name="odometer" type="number" required placeholder="e.g. 50000" value="${vehicle?.odometer || ''}" />
+              <input class="form-input" name="odometer" type="number" required placeholder="e.g. 50000" min="0" max="9999999" value="${vehicle?.odometer || ''}" title="Enter odometer reading in km" />
             </div>
           </div>
           <div class="form-row-2">
@@ -225,7 +225,7 @@ function showVehicleModal(editId) {
             </div>
             <div class="form-group">
               <label class="form-label">Acquisition Cost (₹)</label>
-              <input class="form-input" name="acquisitionCost" type="number" placeholder="e.g. 2000000" value="${vehicle?.acquisitionCost || ''}" />
+              <input class="form-input" name="acquisitionCost" type="number" placeholder="e.g. 2000000" min="0" max="999999999" value="${vehicle?.acquisitionCost || ''}" title="Enter acquisition cost in rupees" />
             </div>
           </div>
         </div>
@@ -247,6 +247,14 @@ function showVehicleModal(editId) {
   overlay.querySelector('#vehicle-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const fd = new FormData(e.target);
+
+    // Validate year is exactly 4 digits
+    const yearVal = fd.get('model')?.trim();
+    if (!/^\d{4}$/.test(yearVal)) {
+      toast('Model year must be exactly 4 digits (e.g. 2024)', 'error');
+      return;
+    }
+
     const data = {
       name: fd.get('name'),
       model: fd.get('model'),

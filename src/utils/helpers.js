@@ -2,6 +2,17 @@ export function formatCurrency(amount) {
     return '₹' + Number(amount).toLocaleString('en-IN');
 }
 
+export function formatCompact(amount) {
+    const n = Number(amount);
+    if (isNaN(n)) return '₹0';
+    const abs = Math.abs(n);
+    const sign = n < 0 ? '-' : '';
+    if (abs >= 1_00_00_000) return sign + '₹' + (abs / 1_00_00_000).toFixed(2).replace(/\.?0+$/, '') + ' Cr';
+    if (abs >= 1_00_000) return sign + '₹' + (abs / 1_00_000).toFixed(2).replace(/\.?0+$/, '') + ' L';
+    if (abs >= 1_000) return sign + '₹' + (abs / 1_000).toFixed(1).replace(/\.?0+$/, '') + 'K';
+    return sign + '₹' + abs.toLocaleString('en-IN');
+}
+
 export function formatDate(dateStr) {
     if (!dateStr) return '—';
     const d = new Date(dateStr);

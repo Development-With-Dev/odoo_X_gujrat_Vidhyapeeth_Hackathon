@@ -1,6 +1,6 @@
 import { store } from '../store/data.js';
 import { renderShell, bindShellEvents } from '../components/shell.js';
-import { formatCurrency, vehicleIcon, exportCSV, toast } from '../utils/helpers.js';
+import { formatCurrency, formatCompact, vehicleIcon, exportCSV, toast } from '../utils/helpers.js';
 
 export function renderAnalytics() {
   const app = document.getElementById('app');
@@ -28,11 +28,11 @@ export function renderAnalytics() {
   const body = `
   <div class="kpi-grid">
     <div class="kpi-card"><div class="kpi-icon green"><span class="material-symbols-rounded">trending_up</span></div>
-      <div class="kpi-value" style="color:var(--c-success)">${formatCurrency(totalRevenue)}</div><div class="kpi-label">Total Revenue</div></div>
+      <div class="kpi-value" style="color:var(--c-success)" title="${formatCurrency(totalRevenue)}">${formatCompact(totalRevenue)}</div><div class="kpi-label">Total Revenue</div></div>
     <div class="kpi-card"><div class="kpi-icon red"><span class="material-symbols-rounded">money_off</span></div>
-      <div class="kpi-value" style="color:var(--c-danger)">${formatCurrency(totalFuel + totalMaint + totalExpense)}</div><div class="kpi-label">Total Costs</div></div>
+      <div class="kpi-value" style="color:var(--c-danger)" title="${formatCurrency(totalFuel + totalMaint + totalExpense)}">${formatCompact(totalFuel + totalMaint + totalExpense)}</div><div class="kpi-label">Total Costs</div></div>
     <div class="kpi-card"><div class="kpi-icon ${netProfit >= 0 ? 'green' : 'red'}"><span class="material-symbols-rounded">${netProfit >= 0 ? 'savings' : 'warning'}</span></div>
-      <div class="kpi-value" style="color:${netProfit >= 0 ? 'var(--c-success)' : 'var(--c-danger)'}">${formatCurrency(netProfit)}</div><div class="kpi-label">Net Profit</div></div>
+      <div class="kpi-value" style="color:${netProfit >= 0 ? 'var(--c-success)' : 'var(--c-danger)'}" title="${formatCurrency(netProfit)}">${formatCompact(netProfit)}</div><div class="kpi-label">Net Profit</div></div>
     <div class="kpi-card"><div class="kpi-icon blue"><span class="material-symbols-rounded">bar_chart</span></div>
       <div class="kpi-value">${completedTrips.length}</div><div class="kpi-label">Completed Trips</div></div>
   </div>
