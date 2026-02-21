@@ -44,27 +44,107 @@ export function renderLogin() {
       </div>
     </div>
 
-    <!-- Forgot Password Modal -->
+    <!-- Forgot Password Modal — 3 Step Flow -->
     <div class="modal-overlay" id="forgot-modal" style="display:none">
-      <div class="modal" style="max-width:440px">
+      <div class="modal" style="max-width:460px">
         <div class="modal-header">
-          <span class="modal-title">🔑 Forgot Password</span>
+          <span class="modal-title">🔑 Reset Password</span>
           <button class="btn btn-icon btn-ghost" id="forgot-close"><span class="material-symbols-rounded">close</span></button>
         </div>
-        <div class="modal-body">
-          <p style="font-size:var(--fs-sm);color:var(--text-secondary);line-height:1.7">
-            Enter the email address linked to your account and we'll notify the administrator to reset your password.
-          </p>
-          <div class="form-group">
-            <label class="form-label" for="forgot-email">Email Address</label>
-            <input class="form-input" type="email" id="forgot-email" placeholder="yourname@gmail.com" required />
+
+        <!-- STEP 1: Enter Email -->
+        <div id="forgot-step-1">
+          <div class="modal-body">
+            <div style="text-align:center;margin-bottom:16px">
+              <span class="material-symbols-rounded" style="font-size:48px;color:var(--c-primary);opacity:0.8">mail_lock</span>
+            </div>
+            <p style="font-size:var(--fs-sm);color:var(--text-secondary);line-height:1.7;text-align:center;margin-bottom:16px">
+              Enter the email address linked to your account.<br>We'll send a <strong>6-digit verification code</strong> to reset your password.
+            </p>
+            <div class="form-group">
+              <label class="form-label" for="forgot-email">Email Address</label>
+              <div class="input-icon-wrap">
+                <span class="material-symbols-rounded input-icon">mail</span>
+                <input class="form-input has-icon" type="email" id="forgot-email" placeholder="yourname@gmail.com" required />
+              </div>
+            </div>
+            <div id="forgot-error-1" class="form-error" style="display:none"></div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" id="forgot-cancel">Cancel</button>
+            <button class="btn btn-primary" id="forgot-send-otp">
+              <span class="material-symbols-rounded">send</span> Send Code
+            </button>
           </div>
         </div>
-        <div class="modal-footer">
-          <button class="btn btn-secondary" id="forgot-cancel">Cancel</button>
-          <button class="btn btn-primary" id="forgot-submit">
-            <span class="material-symbols-rounded">send</span> Send Request
-          </button>
+
+        <!-- STEP 2: Enter OTP -->
+        <div id="forgot-step-2" style="display:none">
+          <div class="modal-body">
+            <div style="text-align:center;margin-bottom:16px">
+              <span class="material-symbols-rounded" style="font-size:48px;color:var(--c-info);opacity:0.8">pin</span>
+            </div>
+            <p style="font-size:var(--fs-sm);color:var(--text-secondary);line-height:1.7;text-align:center;margin-bottom:8px">
+              We've sent a 6-digit code to <strong id="forgot-display-email"></strong>
+            </p>
+            <p id="forgot-timer" style="font-size:var(--fs-xs);color:var(--c-warning);text-align:center;margin-bottom:16px">
+              Code expires in <strong>10:00</strong>
+            </p>
+            <div class="form-group">
+              <label class="form-label" for="forgot-otp">Verification Code</label>
+              <div class="input-icon-wrap">
+                <span class="material-symbols-rounded input-icon">pin</span>
+                <input class="form-input has-icon" type="text" id="forgot-otp" placeholder="Enter 6-digit code" maxlength="6" pattern="[0-9]{6}" required style="font-size:1.2rem;letter-spacing:6px;font-weight:700;text-align:center" />
+              </div>
+            </div>
+            <div id="forgot-error-2" class="form-error" style="display:none"></div>
+            <button class="btn btn-ghost w-full" id="forgot-resend" style="margin-top:8px;font-size:var(--fs-sm)">
+              <span class="material-symbols-rounded" style="font-size:16px">refresh</span> Resend Code
+            </button>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" id="forgot-back-1">
+              <span class="material-symbols-rounded" style="font-size:16px">arrow_back</span> Back
+            </button>
+            <button class="btn btn-primary" id="forgot-verify-otp">
+              <span class="material-symbols-rounded">verified</span> Verify Code
+            </button>
+          </div>
+        </div>
+
+        <!-- STEP 3: New Password -->
+        <div id="forgot-step-3" style="display:none">
+          <div class="modal-body">
+            <div style="text-align:center;margin-bottom:16px">
+              <span class="material-symbols-rounded" style="font-size:48px;color:var(--c-success);opacity:0.8">lock_reset</span>
+            </div>
+            <p style="font-size:var(--fs-sm);color:var(--text-secondary);line-height:1.7;text-align:center;margin-bottom:16px">
+              Code verified! Set your new password below.
+            </p>
+            <div class="form-group">
+              <label class="form-label" for="forgot-new-pass">New Password</label>
+              <div class="input-icon-wrap">
+                <span class="material-symbols-rounded input-icon">lock</span>
+                <input class="form-input has-icon" type="password" id="forgot-new-pass" placeholder="Min 4 characters" required minlength="4" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="forgot-confirm-pass">Confirm Password</label>
+              <div class="input-icon-wrap">
+                <span class="material-symbols-rounded input-icon">lock</span>
+                <input class="form-input has-icon" type="password" id="forgot-confirm-pass" placeholder="Confirm new password" required minlength="4" />
+              </div>
+            </div>
+            <div id="forgot-error-3" class="form-error" style="display:none"></div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" id="forgot-back-2">
+              <span class="material-symbols-rounded" style="font-size:16px">arrow_back</span> Back
+            </button>
+            <button class="btn btn-primary" id="forgot-reset-pass">
+              <span class="material-symbols-rounded">lock_reset</span> Reset Password
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -172,20 +252,159 @@ function heroPanel() {
    EVENT HANDLERS
    ════════════════════════════════════════════════════════════════ */
 function bindLoginEvents() {
-  // Forgot password modal
   const modal = document.getElementById('forgot-modal');
+  const step1 = document.getElementById('forgot-step-1');
+  const step2 = document.getElementById('forgot-step-2');
+  const step3 = document.getElementById('forgot-step-3');
+  let resetEmail = '';
+  let resetOtp = '';
+  let timerInterval = null;
+
+  function showStep(n) {
+    step1.style.display = n === 1 ? '' : 'none';
+    step2.style.display = n === 2 ? '' : 'none';
+    step3.style.display = n === 3 ? '' : 'none';
+  }
+
+  function closeModal() {
+    modal.style.display = 'none';
+    showStep(1);
+    if (timerInterval) clearInterval(timerInterval);
+    // Reset fields
+    document.getElementById('forgot-email').value = '';
+    document.getElementById('forgot-otp').value = '';
+    document.getElementById('forgot-new-pass').value = '';
+    document.getElementById('forgot-confirm-pass').value = '';
+    [document.getElementById('forgot-error-1'), document.getElementById('forgot-error-2'), document.getElementById('forgot-error-3')].forEach(e => { if (e) e.style.display = 'none'; });
+  }
+
+  function showError(step, msg) {
+    const el = document.getElementById(`forgot-error-${step}`);
+    if (el) {
+      el.style.display = 'flex';
+      el.innerHTML = `<span class="material-symbols-rounded" style="font-size:14px">error</span> ${msg}`;
+    }
+  }
+
+  function startTimer() {
+    let seconds = 600; // 10 min
+    const timerEl = document.getElementById('forgot-timer');
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+      seconds--;
+      const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+      const s = (seconds % 60).toString().padStart(2, '0');
+      if (timerEl) timerEl.innerHTML = `Code expires in <strong>${m}:${s}</strong>`;
+      if (seconds <= 0) {
+        clearInterval(timerInterval);
+        if (timerEl) { timerEl.innerHTML = '<strong style="color:var(--c-danger)">Code expired — request a new one</strong>'; }
+      }
+    }, 1000);
+  }
+
+  async function sendOTP(email) {
+    const btn = document.getElementById('forgot-send-otp');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="material-symbols-rounded">hourglass_empty</span> Sending...';
+    try {
+      const res = await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) { showError(1, data.error || 'Failed to send code'); return false; }
+      return true;
+    } catch {
+      showError(1, 'Cannot connect to server');
+      return false;
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<span class="material-symbols-rounded">send</span> Send Code';
+    }
+  }
+
+  // Open modal
   document.getElementById('forgot-password')?.addEventListener('click', (e) => {
     e.preventDefault();
     modal.style.display = 'flex';
+    showStep(1);
   });
-  document.getElementById('forgot-close')?.addEventListener('click', () => modal.style.display = 'none');
-  document.getElementById('forgot-cancel')?.addEventListener('click', () => modal.style.display = 'none');
-  modal?.addEventListener('click', (e) => { if (e.target === modal) modal.style.display = 'none'; });
-  document.getElementById('forgot-submit')?.addEventListener('click', () => {
+  document.getElementById('forgot-close')?.addEventListener('click', closeModal);
+  document.getElementById('forgot-cancel')?.addEventListener('click', closeModal);
+  modal?.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+
+  // Step 1 → Step 2 : Send OTP
+  document.getElementById('forgot-send-otp')?.addEventListener('click', async () => {
     const email = document.getElementById('forgot-email').value.trim();
-    if (!email) { toast('Please enter your email', 'error'); return; }
-    toast('Password reset request sent to administrator for ' + email, 'success');
-    modal.style.display = 'none';
+    if (!email) { showError(1, 'Please enter your email'); return; }
+    if (!/^[^\s@]+@gmail\.com$/i.test(email)) { showError(1, 'Please enter a valid Gmail address'); return; }
+    document.getElementById('forgot-error-1').style.display = 'none';
+    const ok = await sendOTP(email);
+    if (ok) {
+      resetEmail = email;
+      document.getElementById('forgot-display-email').textContent = email;
+      showStep(2);
+      startTimer();
+      toast('Verification code sent to ' + email, 'success');
+    }
+  });
+
+  // Step 2 → Step 1 : Back
+  document.getElementById('forgot-back-1')?.addEventListener('click', () => {
+    if (timerInterval) clearInterval(timerInterval);
+    showStep(1);
+  });
+
+  // Step 2 : Resend
+  document.getElementById('forgot-resend')?.addEventListener('click', async () => {
+    document.getElementById('forgot-error-2').style.display = 'none';
+    const ok = await sendOTP(resetEmail);
+    if (ok) { startTimer(); toast('New verification code sent!', 'success'); }
+  });
+
+  // Step 2 → Step 3 : Verify OTP
+  document.getElementById('forgot-verify-otp')?.addEventListener('click', () => {
+    const otp = document.getElementById('forgot-otp').value.trim();
+    if (!otp || otp.length !== 6) { showError(2, 'Please enter a valid 6-digit code'); return; }
+    document.getElementById('forgot-error-2').style.display = 'none';
+    resetOtp = otp;
+    showStep(3);
+  });
+
+  // Step 3 → Step 2 : Back
+  document.getElementById('forgot-back-2')?.addEventListener('click', () => showStep(2));
+
+  // Step 3 : Reset Password
+  document.getElementById('forgot-reset-pass')?.addEventListener('click', async () => {
+    const newPass = document.getElementById('forgot-new-pass').value;
+    const confirmPass = document.getElementById('forgot-confirm-pass').value;
+    if (!newPass || newPass.length < 4) { showError(3, 'Password must be at least 4 characters'); return; }
+    if (newPass !== confirmPass) { showError(3, 'Passwords do not match'); return; }
+    document.getElementById('forgot-error-3').style.display = 'none';
+
+    const btn = document.getElementById('forgot-reset-pass');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="material-symbols-rounded">hourglass_empty</span> Resetting...';
+    try {
+      const res = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: resetEmail, otp: resetOtp, newPassword: newPass }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        toast('Password reset successfully! You can now login.', 'success');
+        closeModal();
+      } else {
+        showError(3, data.error || 'Failed to reset password');
+      }
+    } catch {
+      showError(3, 'Cannot connect to server');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<span class="material-symbols-rounded">lock_reset</span> Reset Password';
+    }
   });
 
   // Login form

@@ -1,6 +1,8 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 import User from '../models/User.js';
+import { sendResetEmail } from '../utils/mailer.js';
 
 const router = express.Router();
 
@@ -96,6 +98,71 @@ router.get('/me', async (req, res) => {
         res.json({ success: true, user: user.toJSON() });
     } catch (err) {
         res.status(401).json({ success: false, error: 'Invalid or expired token' });
+    }
+});
+
+/* ─── Forgot Password: send OTP to email ─── */
+router.post('/forgot-password', async (req, res) => {
+    try {
+        const { email } = req.body;
+        if (!email) {
+            return res.status(400).json({ success: false, error: 'Email is required' });
+        }
+
+        // username IS the email in this system
+        const user = await User.findOne({ username: email.toLowerCase() });
+        if (!user) {
+            // Don't reveal whether user exists
+            return res.json({ success: true, message: 'If this email is registered, a reset code has been sent.' });
+        }
+
+        // Generate 6-digit OTP
+        const otp = crypto.randomInt(100000, 999999).toString();
+        user.resetPasswordToken = otp;
+        user.resetPasswordExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+        await user.save();
+
+        // Send email
+        await sendResetEmail(user.username, otp, user.name);
+
+        res.json({ success: true, message: 'If this email is registered, a reset code has been sent.' });
+    } catch (err) {
+        console.error('Forgot password error:', err);
+        res.status(500).json({ success: false, error: 'Failed to process request. Please try again.' });
+    }
+});
+
+/* ─── Reset Password: verify OTP and set new password ─── */
+router.post('/reset-password', async (req, res) => {
+    try {
+        const { email, otp, newPassword } = req.body;
+        if (!email || !otp || !newPassword) {
+            return res.status(400).json({ success: false, error: 'Email, OTP, and new password are required' });
+        }
+
+        if (newPassword.length < 4) {
+            return res.status(400).json({ success: false, error: 'Password must be at least 4 characters' });
+        }
+
+        const user = await User.findOne({
+            username: email.toLowerCase(),
+            resetPasswordToken: otp,
+            resetPasswordExpires: { $gt: new Date() },
+        });
+
+        if (!user) {
+            return res.status(400).json({ success: false, error: 'Invalid or expired reset code' });
+        }
+
+        user.password = newPassword; // will be hashed by pre-save hook
+        user.resetPasswordToken = null;
+        user.resetPasswordExpires = null;
+        await user.save();
+
+        res.json({ success: true, message: 'Password updated successfully! You can now login.' });
+    } catch (err) {
+        console.error('Reset password error:', err);
+        res.status(500).json({ success: false, error: err.message });
     }
 });
 
