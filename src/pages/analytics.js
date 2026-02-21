@@ -1,6 +1,6 @@
 import { store } from '../store/data.js';
 import { renderShell, bindShellEvents } from '../components/shell.js';
-import { formatCurrency, formatCompact, vehicleIcon, exportExcel, toast } from '../utils/helpers.js';
+import { formatCurrency, formatCompact, vehicleIcon, exportCSV, toast } from '../utils/helpers.js';
 
 export function renderAnalytics() {
   const app = document.getElementById('app');
@@ -98,7 +98,7 @@ export function renderAnalytics() {
   <div class="card">
     <div class="card-header">
       <span class="card-title">Vehicle Performance & ROI</span>
-      <button class="btn btn-ghost btn-sm" id="export-analytics"><span class="material-symbols-rounded" style="font-size:16px">download</span> Export Excel</button>
+      <button class="btn btn-ghost btn-sm" id="export-analytics"><span class="material-symbols-rounded" style="font-size:16px">download</span> Export CSV</button>
     </div>
     <div class="data-table-wrap">
       <table class="data-table">
@@ -135,17 +135,17 @@ export function renderAnalytics() {
   </div>`;
 
   app.innerHTML = renderShell('Analytics & Reports', 'Data-driven fleet insights',
-    `<button class="btn btn-primary" id="export-full"><span class="material-symbols-rounded">description</span> Full Report Excel</button>`, body);
+    `<button class="btn btn-primary" id="export-full"><span class="material-symbols-rounded">description</span> Full Report CSV</button>`, body);
   bindShellEvents();
 
   document.getElementById('export-analytics')?.addEventListener('click', () => {
-    exportExcel(vehicleMetrics.map(v => ({ Vehicle: v.name, Plate: v.licensePlate, Trips: v.tripCount, Distance_km: v.totalKm, Fuel_L: v.totalLiters, FuelEff: v.fuelEff, CostPerKm: v.costPerKm, Revenue: v.revenue, OpsCost: v.opsCost, ROI_pct: v.roi })), 'fleetflow_vehicle_roi.xlsx', 'Vehicle ROI');
+    exportCSV(vehicleMetrics.map(v => ({ Vehicle: v.name, Plate: v.licensePlate, Trips: v.tripCount, Distance_km: v.totalKm, Fuel_L: v.totalLiters, FuelEff: v.fuelEff, CostPerKm: v.costPerKm, Revenue: v.revenue, OpsCost: v.opsCost, ROI_pct: v.roi })), 'fleetflow_vehicle_roi.csv');
     toast('Report exported', 'success');
   });
 
   document.getElementById('export-full')?.addEventListener('click', () => {
     const data = [{ Type: 'Revenue', Amount: totalRevenue }, { Type: 'Fuel Cost', Amount: totalFuel }, { Type: 'Maintenance', Amount: totalMaint }, { Type: 'Other Expenses', Amount: totalExpense }, { Type: 'Net Profit', Amount: netProfit }];
-    exportExcel(data, 'fleetflow_financial_summary.xlsx', 'Financial Summary');
+    exportCSV(data, 'fleetflow_financial_summary.csv');
     toast('Financial summary exported', 'success');
   });
 }

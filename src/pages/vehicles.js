@@ -94,6 +94,9 @@ export function renderVehicles() {
                     <button class="btn btn-ghost btn-sm btn-icon" data-reactivate="${v.id}" title="Reactivate">
                       <span class="material-symbols-rounded" style="font-size:16px;color:var(--c-success)">check_circle</span>
                     </button>` : ''}
+                    <button class="btn btn-ghost btn-sm btn-icon" data-delete="${v.id}" title="Delete permanently">
+                      <span class="material-symbols-rounded" style="font-size:16px;color:var(--c-danger)">delete</span>
+                    </button>
                   </div>
                 </td>
               </tr>
@@ -153,6 +156,16 @@ function bindVehicleEvents() {
     btn.addEventListener('click', async () => {
       const r = await store.updateVehicle(btn.dataset.reactivate, { status: 'Available' });
       if (r?.success) { toast('Vehicle reactivated', 'success'); renderVehicles(); } else toast(r?.error || 'Failed', 'error');
+    });
+  });
+
+  document.querySelectorAll('[data-delete]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const vehicle = store.getVehicle(btn.dataset.delete);
+      if (confirm(`Permanently delete "${vehicle?.name || 'this vehicle'}"?\nThis action cannot be undone.`)) {
+        const r = await store.deleteVehicle(btn.dataset.delete);
+        if (r?.success) { toast('Vehicle deleted', 'info'); renderVehicles(); } else toast(r?.error || 'Failed to delete', 'error');
+      }
     });
   });
 }
