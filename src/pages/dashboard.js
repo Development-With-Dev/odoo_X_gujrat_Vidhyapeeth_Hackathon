@@ -3,10 +3,20 @@ import { renderShell, bindShellEvents } from '../components/shell.js';
 import { pillHTML, formatCurrency, formatDate, vehicleIcon } from '../utils/helpers.js';
 import { router } from '../utils/router.js';
 
-let dashVehicleType = 'All';
-let dashStatus = 'All';
-let dashRegion = 'All';
+/* ─── Multi-select filter state (Sets) ──────────────────────── */
+let dashVehicleTypes = new Set();   // empty = All
+let dashStatuses = new Set();       // empty = All
+let dashRegions = new Set();        // empty = All
 let dashSearch = '';
+
+function activeFilterCount() {
+  return dashVehicleTypes.size + dashStatuses.size + dashRegions.size + (dashSearch ? 1 : 0);
+}
+
+function toggleFilter(set, value) {
+  if (set.has(value)) set.delete(value);
+  else set.add(value);
+}
 
 export async function renderDashboard() {
   const app = document.getElementById('app');
@@ -15,9 +25,11 @@ export async function renderDashboard() {
   const draftTrips = store.trips.filter(t => t.status === 'Draft');
   let activeTrips = store.trips.filter(t => t.status === 'Dispatched').sort((a, b) => new Date(b.dispatchedAt || b.createdAt) - new Date(a.dispatchedAt || a.createdAt));
   let vehicles = store.vehicles.filter(v => v.status !== 'Retired');
-  if (dashVehicleType !== 'All') vehicles = vehicles.filter(v => v.type === dashVehicleType);
-  if (dashStatus !== 'All') vehicles = vehicles.filter(v => v.status === dashStatus);
-  if (dashRegion !== 'All') vehicles = vehicles.filter(v => v.region === dashRegion);
+
+  /* ─── Apply multi-select filters ─── */
+  if (dashVehicleTypes.size) vehicles = vehicles.filter(v => dashVehicleTypes.has(v.type));
+  if (dashStatuses.size) vehicles = vehicles.filter(v => dashStatuses.has(v.status));
+  if (dashRegions.size) vehicles = vehicles.filter(v => dashRegions.has(v.region));
   if (dashSearch) {
     const q = dashSearch.toLowerCase();
     vehicles = vehicles.filter(v => v.name?.toLowerCase().includes(q) || v.licensePlate?.toLowerCase().includes(q));
@@ -25,8 +37,8 @@ export async function renderDashboard() {
   activeTrips = activeTrips.filter(t => {
     const v = store.getVehicle(t.vehicleId);
     if (!v) return true;
-    if (dashVehicleType !== 'All' && v.type !== dashVehicleType) return false;
-    if (dashRegion !== 'All' && v.region !== dashRegion) return false;
+    if (dashVehicleTypes.size && !dashVehicleTypes.has(v.type)) return false;
+    if (dashRegions.size && !dashRegions.has(v.region)) return false;
     if (dashSearch) {
       const q = dashSearch.toLowerCase();
       if (!v.name?.toLowerCase().includes(q) && !v.licensePlate?.toLowerCase().includes(q)) return false;
@@ -40,6 +52,16 @@ export async function renderDashboard() {
   const totalRevenue = completedTrips.reduce((s, t) => s + (t.revenue || 0), 0);
   const totalFuelCost = store.fuelLogs.reduce((s, f) => s + f.totalCost, 0);
   const totalMaintCost = store.maintenance.reduce((s, m) => s + m.cost, 0);
+
+  const filterCount = activeFilterCount();
+
+  /* ─── Chip HTML helper (multi-select with checkmark) ─── */
+  const multiChip = (label, value, set, dataAttr) => {
+    const isActive = set.has(value);
+    return `<button class="chip ${isActive ? 'active' : ''}" ${dataAttr}="${value}">
+      ${isActive ? '<span class="material-symbols-rounded" style="font-size:14px;margin-right:2px">check</span>' : ''}${label}
+    </button>`;
+  };
 
   const bodyContent = `
     <div class="kpi-grid">
@@ -101,21 +123,60 @@ export async function renderDashboard() {
       </div>
     </div>
 
+    <!-- ─── Multi-Select Filter Bar ─── -->
     <div class="filter-bar mt-6">
       <div class="search-input-wrap">
         <span class="material-symbols-rounded">search</span>
-        <input class="form-input" id="dash-search" placeholder="Search..." value="${dashSearch}" />
+        <input class="form-input" id="dash-search" placeholder="Search vehicles..." value="${dashSearch}" />
       </div>
-      <div class="filter-chips" id="dash-vehicle-type">
-        ${['All', 'Truck', 'Van', 'Bike'].map(t => `<button class="chip ${dashVehicleType === t ? 'active' : ''}" data-type="${t}">${t === 'All' ? 'All Types' : t}</button>`).join('')}
+      ${filterCount > 0 ? `<button class="btn btn-ghost btn-sm" id="clear-all-filters" style="color:var(--c-danger);gap:4px">
+        <span class="material-symbols-rounded" style="font-size:16px">filter_alt_off</span> Clear ${filterCount} filter${filterCount > 1 ? 's' : ''}
+      </button>` : ''}
+    </div>
+
+    <div style="display:flex;flex-wrap:wrap;gap:var(--sp-4);margin-bottom:var(--sp-6);animation:fadeSlideUp 0.3s var(--ease-out) both">
+      <!-- Vehicle Type (multi-select) -->
+      <div class="multi-filter-group">
+        <div class="multi-filter-label">
+          <span class="material-symbols-rounded" style="font-size:15px">local_shipping</span>
+          Type ${dashVehicleTypes.size ? `<span class="filter-count-badge">${dashVehicleTypes.size}</span>` : ''}
+        </div>
+        <div class="filter-chips" id="dash-vehicle-type">
+          ${['Truck', 'Van', 'Bike'].map(t => multiChip(t, t, dashVehicleTypes, 'data-type')).join('')}
+        </div>
       </div>
-      <div class="filter-chips" id="dash-status">
-        ${['All', 'Available', 'On Trip', 'In Shop'].map(s => `<button class="chip ${dashStatus === s ? 'active' : ''}" data-status="${s}">${s === 'All' ? 'All Status' : s}</button>`).join('')}
+
+      <!-- Status (multi-select) -->
+      <div class="multi-filter-group">
+        <div class="multi-filter-label">
+          <span class="material-symbols-rounded" style="font-size:15px">toggle_on</span>
+          Status ${dashStatuses.size ? `<span class="filter-count-badge">${dashStatuses.size}</span>` : ''}
+        </div>
+        <div class="filter-chips" id="dash-status">
+          ${['Available', 'On Trip', 'In Shop'].map(s => multiChip(s, s, dashStatuses, 'data-status')).join('')}
+        </div>
       </div>
-      <div class="filter-chips" id="dash-region">
-        ${['All', 'West', 'East', 'North', 'South', 'Central'].map(r => `<button class="chip ${dashRegion === r ? 'active' : ''}" data-region="${r}">${r === 'All' ? 'All Regions' : r}</button>`).join('')}
+
+      <!-- Region (multi-select) -->
+      <div class="multi-filter-group">
+        <div class="multi-filter-label">
+          <span class="material-symbols-rounded" style="font-size:15px">map</span>
+          Region ${dashRegions.size ? `<span class="filter-count-badge">${dashRegions.size}</span>` : ''}
+        </div>
+        <div class="filter-chips" id="dash-region">
+          ${['West', 'East', 'North', 'South', 'Central'].map(r => multiChip(r, r, dashRegions, 'data-region')).join('')}
+        </div>
       </div>
     </div>
+
+    ${filterCount > 0 ? `
+    <div class="active-filters-summary" style="margin-bottom:var(--sp-4);animation:fadeSlideUp 0.3s var(--ease-out) 0.1s both">
+      <span class="material-symbols-rounded" style="font-size:16px;color:var(--c-accent)">filter_list</span>
+      <span style="font-size:var(--fs-sm);color:var(--text-secondary)">Showing <strong style="color:var(--text-primary)">${vehicles.length}</strong> vehicles</span>
+      ${dashVehicleTypes.size ? `<span class="active-filter-tag">${[...dashVehicleTypes].join(', ')}</span>` : ''}
+      ${dashStatuses.size ? `<span class="active-filter-tag">${[...dashStatuses].join(', ')}</span>` : ''}
+      ${dashRegions.size ? `<span class="active-filter-tag">${[...dashRegions].join(', ')}</span>` : ''}
+    </div>` : ''}
 
     <div class="card mt-6">
       <div class="card-header">
@@ -256,6 +317,7 @@ export async function renderDashboard() {
   );
   bindShellEvents();
 
+  /* ─── Event Bindings ─── */
   document.getElementById('refresh-dashboard-btn')?.addEventListener('click', async () => {
     await store.fetchAll();
     renderDashboard();
@@ -275,19 +337,46 @@ export async function renderDashboard() {
     } catch (e) { }
   });
 
+  /* ─── Search ─── */
   document.getElementById('dash-search')?.addEventListener('input', (e) => {
     dashSearch = e.target.value;
     renderDashboard();
   });
+
+  /* ─── Multi-select: Vehicle Type ─── */
   document.querySelectorAll('#dash-vehicle-type .chip').forEach(c => {
-    c.addEventListener('click', () => { dashVehicleType = c.dataset.type; renderDashboard(); });
+    c.addEventListener('click', () => {
+      toggleFilter(dashVehicleTypes, c.dataset.type);
+      renderDashboard();
+    });
   });
+
+  /* ─── Multi-select: Status ─── */
   document.querySelectorAll('#dash-status .chip').forEach(c => {
-    c.addEventListener('click', () => { dashStatus = c.dataset.status; renderDashboard(); });
+    c.addEventListener('click', () => {
+      toggleFilter(dashStatuses, c.dataset.status);
+      renderDashboard();
+    });
   });
+
+  /* ─── Multi-select: Region ─── */
   document.querySelectorAll('#dash-region .chip').forEach(c => {
-    c.addEventListener('click', () => { dashRegion = c.dataset.region; renderDashboard(); });
+    c.addEventListener('click', () => {
+      toggleFilter(dashRegions, c.dataset.region);
+      renderDashboard();
+    });
   });
+
+  /* ─── Clear All Filters ─── */
+  document.getElementById('clear-all-filters')?.addEventListener('click', () => {
+    dashVehicleTypes.clear();
+    dashStatuses.clear();
+    dashRegions.clear();
+    dashSearch = '';
+    renderDashboard();
+  });
+
+  /* ─── Nav links ─── */
   document.querySelectorAll('[data-nav]').forEach(el => {
     el.addEventListener('click', () => { const path = el.dataset.nav; if (path) router.navigate(path); });
   });

@@ -74,6 +74,27 @@ export function renderShell(pageTitle, subtitle, headerActions, bodyContent) {
           ${bodyContent}
         </div>
       </main>
+
+      <!-- Logout Confirmation Modal -->
+      <div class="modal-overlay" id="logout-modal" style="display:none">
+        <div class="modal" style="max-width:380px">
+          <div class="modal-header">
+            <span class="modal-title">Confirm Logout</span>
+            <button class="btn btn-icon btn-ghost" id="logout-cancel-x"><span class="material-symbols-rounded">close</span></button>
+          </div>
+          <div class="modal-body" style="align-items:center;text-align:center;padding:var(--sp-8) var(--sp-6)">
+            <div style="width:56px;height:56px;border-radius:var(--radius-full);background:var(--c-danger-bg);display:flex;align-items:center;justify-content:center;margin-bottom:var(--sp-3)">
+              <span class="material-symbols-rounded" style="font-size:28px;color:var(--c-danger)">logout</span>
+            </div>
+            <p style="font-size:var(--fs-base);font-weight:600;margin-bottom:var(--sp-2)">Ready to leave?</p>
+            <p style="font-size:var(--fs-sm);color:var(--text-muted);line-height:1.6">You are logged in as <strong style="color:var(--text-primary)">${user.name}</strong><br><span style="text-transform:capitalize">${user.role}</span></p>
+          </div>
+          <div class="modal-footer" style="justify-content:center;gap:var(--sp-3);padding:var(--sp-4) var(--sp-6) var(--sp-6)">
+            <button class="btn btn-secondary" id="logout-cancel" style="flex:1"><span class="material-symbols-rounded" style="font-size:16px">arrow_back</span> Cancel</button>
+            <button class="btn btn-danger" id="logout-confirm" style="flex:1;border-color:var(--c-danger)"><span class="material-symbols-rounded" style="font-size:16px">logout</span> Logout</button>
+          </div>
+        </div>
+      </div>
     </div>
   `;
 }
@@ -85,11 +106,27 @@ export function bindShellEvents() {
     });
   });
 
+  /* ─── Logout Confirmation Modal ─── */
   const logoutBtn = document.getElementById('sidebar-user-menu');
-  if (logoutBtn) {
+  const logoutModal = document.getElementById('logout-modal');
+  const closeLogoutModal = () => { if (logoutModal) logoutModal.style.display = 'none'; };
+
+  if (logoutBtn && logoutModal) {
     logoutBtn.addEventListener('click', () => {
+      logoutModal.style.display = 'flex';
+    });
+
+    document.getElementById('logout-confirm')?.addEventListener('click', () => {
+      closeLogoutModal();
       store.logout();
       router.navigate('/login');
+    });
+
+    document.getElementById('logout-cancel')?.addEventListener('click', closeLogoutModal);
+    document.getElementById('logout-cancel-x')?.addEventListener('click', closeLogoutModal);
+
+    logoutModal.addEventListener('click', (e) => {
+      if (e.target === logoutModal) closeLogoutModal();
     });
   }
 
