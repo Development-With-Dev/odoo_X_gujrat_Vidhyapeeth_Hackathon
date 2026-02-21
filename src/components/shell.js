@@ -52,14 +52,9 @@ export function renderShell(pageTitle, subtitle, headerActions, bodyContent) {
               <div class="sidebar-user-role">${user.role}</div>
             </div>
           </div>
-          <div style="display:flex;gap:var(--sp-2);padding:var(--sp-2) var(--sp-3) 0">
-            <button class="btn btn-ghost btn-sm" data-nav="/profile" style="flex:1;justify-content:flex-start;gap:6px;color:var(--text-muted)">
-              <span class="material-symbols-rounded" style="font-size:16px">settings</span> Settings
-            </button>
-            <button class="btn btn-ghost btn-sm" id="sidebar-logout-btn" style="color:var(--c-danger);gap:4px" title="Logout">
-              <span class="material-symbols-rounded" style="font-size:16px">logout</span>
-            </button>
-          </div>
+          <button class="btn btn-ghost btn-sm" id="sidebar-logout-btn" style="color:var(--c-danger);gap:4px;margin:var(--sp-2) var(--sp-3) 0" title="Logout">
+            <span class="material-symbols-rounded" style="font-size:16px">logout</span> Logout
+          </button>
         </div>
       </aside>
 
