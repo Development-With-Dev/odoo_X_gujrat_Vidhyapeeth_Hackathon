@@ -193,7 +193,7 @@ function showVehicleModal(editId) {
             </div>
             <div class="form-group">
               <label class="form-label">License Plate</label>
-              <input class="form-input" name="licensePlate" required placeholder="GJ-XX-YY-ZZZZ" maxlength="20" pattern="[A-Za-z0-9\\-]+" title="Letters, digits and hyphens only" value="${vehicle?.licensePlate || ''}" />
+              <input class="form-input" name="licensePlate" required placeholder="GJ-01-AB-1234" maxlength="13" pattern="[A-Z]{2}-[0-9]{2}-[A-Z]{1,3}-[0-9]{4}" title="Indian plate format: ST-DD-LL-NNNN e.g. GJ-01-AB-1234 (uppercase letters only)" value="${vehicle?.licensePlate || ''}" />
             </div>
           </div>
           <div class="form-row-2">
