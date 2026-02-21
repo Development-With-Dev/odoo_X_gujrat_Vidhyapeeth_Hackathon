@@ -26,6 +26,35 @@ export function renderVehicles() {
   const statuses = ['All', 'Available', 'On Trip', 'In Shop', 'Retired'];
 
   const bodyContent = `
+    <div class="card mb-6" style="border-left:4px solid var(--c-accent-light);background:var(--bg-elevated)">
+      <div class="card-body" style="display:flex;gap:var(--sp-5);align-items:flex-start;flex-wrap:wrap">
+        <div style="flex:1;min-width:220px">
+          <div style="display:flex;align-items:center;gap:var(--sp-2);margin-bottom:var(--sp-2)">
+            <span class="material-symbols-rounded" style="color:var(--c-accent-light);font-size:20px">garage</span>
+            <span style="font-weight:700;font-size:var(--fs-base)">Vehicle Registry — Asset Management</span>
+          </div>
+          <p style="font-size:var(--fs-sm);color:var(--text-secondary);line-height:1.7;margin:0">
+            Your <strong>digital garage</strong>. Add, view, update, or remove every vehicle your company owns. Manually toggle a vehicle "Out of Service" (Retired) to remove it from the dispatcher's pool.
+          </p>
+        </div>
+        <div style="display:flex;gap:var(--sp-4);flex-wrap:wrap">
+          ${[
+      { icon: 'directions_car', label: 'Name / Model', desc: 'Make & specific name of the vehicle' },
+      { icon: 'pin', label: 'License Plate', desc: 'Unique ID — Indian RTO format (GJ-01-AB-1234)' },
+      { icon: 'scale', label: 'Max Load Capacity', desc: 'Max safe cargo weight in kg' },
+      { icon: 'speed', label: 'Odometer', desc: 'Current dashboard mileage in km' },
+    ].map(item => `
+            <div style="display:flex;gap:var(--sp-2);align-items:flex-start;min-width:170px">
+              <span class="material-symbols-rounded" style="font-size:18px;color:var(--c-accent-light);margin-top:2px">${item.icon}</span>
+              <div>
+                <div style="font-weight:600;font-size:var(--fs-sm)">${item.label}</div>
+                <div style="font-size:var(--fs-xs);color:var(--text-muted)">${item.desc}</div>
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>
+    </div>
+
     <div class="filter-bar">
       <div class="search-input-wrap">
         <span class="material-symbols-rounded">search</span>

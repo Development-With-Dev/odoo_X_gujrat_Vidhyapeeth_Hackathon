@@ -13,7 +13,37 @@ export function renderTrips() {
   const statuses = ['All', 'Draft', 'Dispatched', 'Completed', 'Cancelled'];
 
   const bodyContent = `
+    <div class="card mb-6" style="border-left:4px solid var(--c-accent-light);background:var(--bg-elevated)">
+      <div class="card-body" style="display:flex;gap:var(--sp-5);align-items:flex-start;flex-wrap:wrap">
+        <div style="flex:1;min-width:220px">
+          <div style="display:flex;align-items:center;gap:var(--sp-2);margin-bottom:var(--sp-2)">
+            <span class="material-symbols-rounded" style="color:var(--c-accent-light);font-size:20px">route</span>
+            <span style="font-weight:700;font-size:var(--fs-base)">Trip Dispatcher — Delivery Workflow</span>
+          </div>
+          <p style="font-size:var(--fs-sm);color:var(--text-secondary);line-height:1.7;margin:0">
+            Manage the full workflow for moving goods from Point A to Point B. Select an available vehicle and driver, then follow the trip lifecycle. <strong>Validation:</strong> cargo weight cannot exceed the vehicle's max capacity.
+          </p>
+        </div>
+        <div style="display:flex;gap:var(--sp-4);flex-wrap:wrap">
+          ${[
+      { icon: 'edit_note', color: 'var(--text-muted)', label: 'Draft', desc: 'Trip created, not yet dispatched' },
+      { icon: 'send', color: 'var(--c-info)', label: 'Dispatched', desc: 'Vehicle & driver assigned, On Trip' },
+      { icon: 'check_circle', color: 'var(--c-success)', label: 'Completed', desc: 'Trip done, odometer recorded' },
+      { icon: 'cancel', color: 'var(--c-danger)', label: 'Cancelled', desc: 'Trip was cancelled at any stage' },
+    ].map(item => `
+            <div style="display:flex;gap:var(--sp-2);align-items:flex-start;min-width:155px">
+              <span class="material-symbols-rounded" style="font-size:18px;color:${item.color};margin-top:2px">${item.icon}</span>
+              <div>
+                <div style="font-weight:600;font-size:var(--fs-sm)">${item.label}</div>
+                <div style="font-size:var(--fs-xs);color:var(--text-muted)">${item.desc}</div>
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>
+    </div>
+
     <div class="filter-bar">
+
       <div class="filter-chips" id="trip-status-filter">
         ${statuses.map(s => `<button class="chip ${tripFilter === s ? 'active' : ''}" data-status="${s}">${s === 'All' ? 'All Trips' : s}</button>`).join('')}
       </div>
@@ -52,10 +82,10 @@ export function renderTrips() {
             ${trips.length === 0 ? `
               <tr><td colspan="8"><div class="empty-state"><span class="material-symbols-rounded">route</span><p>No trips found</p></div></td></tr>
             ` : trips.map(t => {
-    const v = store.getVehicle(t.vehicleId);
-    const d = store.getDriver(t.driverId);
-    const capacityPct = v ? ((t.cargoWeight / v.maxCapacity) * 100).toFixed(0) : 0;
-    return `
+      const v = store.getVehicle(t.vehicleId);
+      const d = store.getDriver(t.driverId);
+      const capacityPct = v ? ((t.cargoWeight / v.maxCapacity) * 100).toFixed(0) : 0;
+      return `
                 <tr>
                   <td>
                     <div style="font-weight:600;font-size:var(--fs-sm)">${t.origin}</div>
@@ -113,7 +143,7 @@ export function renderTrips() {
                   </td>
                 </tr>
               `;
-  }).join('')}
+    }).join('')}
           </tbody>
         </table>
       </div>

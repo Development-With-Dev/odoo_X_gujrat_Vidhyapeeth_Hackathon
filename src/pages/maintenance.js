@@ -9,7 +9,37 @@ export function renderMaintenance() {
   const inProgress = records.filter(r => r.status === 'In Progress').length;
 
   const bodyContent = `
+    <div class="card mb-6" style="border-left:4px solid var(--c-accent-light);background:var(--bg-elevated)">
+      <div class="card-body" style="display:flex;gap:var(--sp-5);align-items:flex-start;flex-wrap:wrap">
+        <div style="flex:1;min-width:220px">
+          <div style="display:flex;align-items:center;gap:var(--sp-2);margin-bottom:var(--sp-2)">
+            <span class="material-symbols-rounded" style="color:var(--c-accent-light);font-size:20px">build</span>
+            <span style="font-weight:700;font-size:var(--fs-base)">Maintenance & Service Logs — Health Tracking</span>
+          </div>
+          <p style="font-size:var(--fs-sm);color:var(--text-secondary);line-height:1.7;margin:0">
+            Preventative and reactive vehicle health tracking. <strong>Auto-logic:</strong> logging a service as "In Progress" automatically sets the vehicle to <em>In Shop</em>, removing it from the dispatcher's available pool until marked Done.
+          </p>
+        </div>
+        <div style="display:flex;gap:var(--sp-4);flex-wrap:wrap">
+          ${[
+      { icon: 'build', color: 'var(--c-warning)', label: 'Log a Service', desc: 'Record oil changes, tyres, engine work, etc.' },
+      { icon: 'engineering', color: 'var(--c-danger)', label: 'In Progress', desc: 'Vehicle locked to In Shop status' },
+      { icon: 'check', color: 'var(--c-success)', label: 'Mark Done', desc: 'Vehicle returns to Available' },
+      { icon: 'payments', color: 'var(--c-info)', label: 'Cost Tracking', desc: 'Total maintenance spend per vehicle' },
+    ].map(item => `
+            <div style="display:flex;gap:var(--sp-2);align-items:flex-start;min-width:165px">
+              <span class="material-symbols-rounded" style="font-size:18px;color:${item.color};margin-top:2px">${item.icon}</span>
+              <div>
+                <div style="font-weight:600;font-size:var(--fs-sm)">${item.label}</div>
+                <div style="font-size:var(--fs-xs);color:var(--text-muted)">${item.desc}</div>
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>
+    </div>
+
     <div class="kpi-grid" style="grid-template-columns: repeat(3, 1fr)">
+
       <div class="kpi-card">
         <div class="kpi-icon amber"><span class="material-symbols-rounded">build</span></div>
         <div class="kpi-value">${records.length}</div>
@@ -57,8 +87,8 @@ export function renderMaintenance() {
           </thead>
           <tbody>
             ${records.map(m => {
-    const v = store.getVehicle(m.vehicleId);
-    return `
+      const v = store.getVehicle(m.vehicleId);
+      return `
                 <tr>
                   <td>
                     <div class="flex items-center gap-2">
@@ -86,7 +116,7 @@ export function renderMaintenance() {
                   </td>
                 </tr>
               `;
-  }).join('')}
+    }).join('')}
           </tbody>
         </table>
       </div>

@@ -23,7 +23,37 @@ export function renderExpenses() {
   })).sort((a, b) => b.totalOps - a.totalOps);
 
   const bodyContent = `
+    <div class="card mb-6" style="border-left:4px solid var(--c-accent-light);background:var(--bg-elevated)">
+      <div class="card-body" style="display:flex;gap:var(--sp-5);align-items:flex-start;flex-wrap:wrap">
+        <div style="flex:1;min-width:220px">
+          <div style="display:flex;align-items:center;gap:var(--sp-2);margin-bottom:var(--sp-2)">
+            <span class="material-symbols-rounded" style="color:var(--c-accent-light);font-size:20px">account_balance</span>
+            <span style="font-weight:700;font-size:var(--fs-base)">Expenses & Fuel Logging — Financial Tracking</span>
+          </div>
+          <p style="font-size:var(--fs-sm);color:var(--text-secondary);line-height:1.7;margin:0">
+            Record liters, cost, and date per vehicle. The system auto-calculates <strong>Total Operational Cost = Fuel + Maintenance + Other Expenses</strong> per Vehicle ID for accurate profitability analysis.
+          </p>
+        </div>
+        <div style="display:flex;gap:var(--sp-4);flex-wrap:wrap">
+          ${[
+      { icon: 'local_gas_station', color: 'var(--c-danger)', label: 'Fuel Logs', desc: 'Liters, cost/L, odometer per fill-up' },
+      { icon: 'receipt_long', color: 'var(--c-warning)', label: 'Other Expenses', desc: 'Tolls, parking, insurance, fines' },
+      { icon: 'calculate', color: 'var(--c-success)', label: 'Auto Total Cost', desc: 'Fuel + Maintenance + Expenses' },
+      { icon: 'download', color: 'var(--c-info)', label: 'CSV Export', desc: 'One-click export for monthly audits' },
+    ].map(item => `
+            <div style="display:flex;gap:var(--sp-2);align-items:flex-start;min-width:165px">
+              <span class="material-symbols-rounded" style="font-size:18px;color:${item.color};margin-top:2px">${item.icon}</span>
+              <div>
+                <div style="font-weight:600;font-size:var(--fs-sm)">${item.label}</div>
+                <div style="font-size:var(--fs-xs);color:var(--text-muted)">${item.desc}</div>
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>
+    </div>
+
     <div class="kpi-grid" style="grid-template-columns: repeat(4, 1fr)">
+
       <div class="kpi-card">
         <div class="kpi-icon red"><span class="material-symbols-rounded">local_gas_station</span></div>
         <div class="kpi-value">${formatCurrency(totalFuel)}</div>
@@ -57,8 +87,8 @@ export function renderExpenses() {
           </thead>
           <tbody>
             ${vehicleCosts.map(v => {
-    const net = v.revenue - v.totalOps;
-    return `
+      const net = v.revenue - v.totalOps;
+      return `
                 <tr>
                   <td>
                     <div class="flex items-center gap-2">
@@ -81,7 +111,7 @@ export function renderExpenses() {
                   </td>
                 </tr>
               `;
-  }).join('')}
+    }).join('')}
           </tbody>
         </table>
       </div>
@@ -107,9 +137,9 @@ export function renderExpenses() {
           </thead>
           <tbody>
             ${fuelLogs.map(f => {
-    const v = store.getVehicle(f.vehicleId);
-    const t = f.tripId ? store.getTrip(f.tripId) : null;
-    return `
+      const v = store.getVehicle(f.vehicleId);
+      const t = f.tripId ? store.getTrip(f.tripId) : null;
+      return `
                 <tr>
                   <td style="font-weight:600">${v ? v.name : 'Unknown'}</td>
                   <td class="text-sm text-muted">${t ? `${t.origin} → ${t.destination}` : '—'}</td>
@@ -120,7 +150,7 @@ export function renderExpenses() {
                   <td>${formatDate(f.date)}</td>
                 </tr>
               `;
-  }).join('')}
+    }).join('')}
           </tbody>
         </table>
       </div>
@@ -138,8 +168,8 @@ export function renderExpenses() {
           </thead>
           <tbody>
             ${expenses.map(e => {
-    const v = store.getVehicle(e.vehicleId);
-    return `
+      const v = store.getVehicle(e.vehicleId);
+      return `
                 <tr>
                   <td style="font-weight:600">${v ? v.name : 'Unknown'}</td>
                   <td>${pillHTML(e.category)}</td>
@@ -148,7 +178,7 @@ export function renderExpenses() {
                   <td>${formatDate(e.date)}</td>
                 </tr>
               `;
-  }).join('')}
+    }).join('')}
           </tbody>
         </table>
       </div>
