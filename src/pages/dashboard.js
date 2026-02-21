@@ -8,38 +8,40 @@ let dashStatus = 'All';
 let dashRegion = 'All';
 let dashSearch = '';
 
-export function renderDashboard() {
-    const app = document.getElementById('app');
-    const kpis = store.kpis;
-    let activeTrips = store.trips.filter(t => t.status === 'Dispatched').sort((a, b) => new Date(b.dispatchedAt || b.createdAt) - new Date(a.dispatchedAt || a.createdAt));
-    let vehicles = store.vehicles.filter(v => v.status !== 'Retired');
-    if (dashVehicleType !== 'All') vehicles = vehicles.filter(v => v.type === dashVehicleType);
-    if (dashStatus !== 'All') vehicles = vehicles.filter(v => v.status === dashStatus);
-    if (dashRegion !== 'All') vehicles = vehicles.filter(v => v.region === dashRegion);
+export async function renderDashboard() {
+  const app = document.getElementById('app');
+  await store.fetchAll();
+  const kpis = store.kpis;
+  const draftTrips = store.trips.filter(t => t.status === 'Draft');
+  let activeTrips = store.trips.filter(t => t.status === 'Dispatched').sort((a, b) => new Date(b.dispatchedAt || b.createdAt) - new Date(a.dispatchedAt || a.createdAt));
+  let vehicles = store.vehicles.filter(v => v.status !== 'Retired');
+  if (dashVehicleType !== 'All') vehicles = vehicles.filter(v => v.type === dashVehicleType);
+  if (dashStatus !== 'All') vehicles = vehicles.filter(v => v.status === dashStatus);
+  if (dashRegion !== 'All') vehicles = vehicles.filter(v => v.region === dashRegion);
+  if (dashSearch) {
+    const q = dashSearch.toLowerCase();
+    vehicles = vehicles.filter(v => v.name?.toLowerCase().includes(q) || v.licensePlate?.toLowerCase().includes(q));
+  }
+  activeTrips = activeTrips.filter(t => {
+    const v = store.getVehicle(t.vehicleId);
+    if (!v) return true;
+    if (dashVehicleType !== 'All' && v.type !== dashVehicleType) return false;
+    if (dashRegion !== 'All' && v.region !== dashRegion) return false;
     if (dashSearch) {
-        const q = dashSearch.toLowerCase();
-        vehicles = vehicles.filter(v => v.name?.toLowerCase().includes(q) || v.licensePlate?.toLowerCase().includes(q));
+      const q = dashSearch.toLowerCase();
+      if (!v.name?.toLowerCase().includes(q) && !v.licensePlate?.toLowerCase().includes(q)) return false;
     }
-    activeTrips = activeTrips.filter(t => {
-        const v = store.getVehicle(t.vehicleId);
-        if (!v) return true;
-        if (dashVehicleType !== 'All' && v.type !== dashVehicleType) return false;
-        if (dashRegion !== 'All' && v.region !== dashRegion) return false;
-        if (dashSearch) {
-            const q = dashSearch.toLowerCase();
-            if (!v.name?.toLowerCase().includes(q) && !v.licensePlate?.toLowerCase().includes(q)) return false;
-        }
-        return true;
-    });
-    const recentTrips = store.trips.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 5);
-    const maintenanceAlerts = store.maintenance.filter(m => m.status === 'In Progress');
+    return true;
+  });
+  const recentTrips = store.trips.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 5);
+  const maintenanceAlerts = store.maintenance.filter(m => m.status === 'In Progress');
 
-    const completedTrips = store.trips.filter(t => t.status === 'Completed');
-    const totalRevenue = completedTrips.reduce((s, t) => s + (t.revenue || 0), 0);
-    const totalFuelCost = store.fuelLogs.reduce((s, f) => s + f.totalCost, 0);
-    const totalMaintCost = store.maintenance.reduce((s, m) => s + m.cost, 0);
+  const completedTrips = store.trips.filter(t => t.status === 'Completed');
+  const totalRevenue = completedTrips.reduce((s, t) => s + (t.revenue || 0), 0);
+  const totalFuelCost = store.fuelLogs.reduce((s, f) => s + f.totalCost, 0);
+  const totalMaintCost = store.maintenance.reduce((s, m) => s + m.cost, 0);
 
-    const bodyContent = `
+  const bodyContent = `
     <div class="kpi-grid">
       <div class="kpi-card animate-slide-up stagger-1">
         <div class="kpi-icon blue"><span class="material-symbols-rounded">local_shipping</span></div>
@@ -73,7 +75,7 @@ export function renderDashboard() {
 
       <div class="kpi-card animate-slide-up stagger-4">
         <div class="kpi-icon purple"><span class="material-symbols-rounded">inventory_2</span></div>
-        <div class="kpi-value">${kpis.pendingCargo}</div>
+        <div class="kpi-value">${draftTrips.length}</div>
         <div class="kpi-label">Pending Cargo (Drafts)</div>
         <div class="kpi-sub">
           <span>${kpis.activeDrivers} of ${kpis.totalDrivers} drivers active</span>
@@ -129,9 +131,9 @@ export function renderDashboard() {
             ${activeTrips.length === 0 ? `
               <tr><td colspan="6"><div class="empty-state"><span class="material-symbols-rounded">route</span><p>No active trips</p></div></td></tr>
             ` : activeTrips.map(trip => {
-        const vehicle = store.getVehicle(trip.vehicleId);
-        const driver = store.getDriver(trip.driverId);
-        return `
+    const vehicle = store.getVehicle(trip.vehicleId);
+    const driver = store.getDriver(trip.driverId);
+    return `
                   <tr>
                     <td><code style="background:var(--bg-elevated);padding:2px 8px;border-radius:4px;font-size:var(--fs-xs)">${(trip.id || '').slice(-8)}</code></td>
                     <td><span class="status-pill" style="background:var(--c-info-bg);color:var(--c-info)">${vehicle ? vehicle.type : '—'}</span></td>
@@ -141,7 +143,7 @@ export function renderDashboard() {
                     <td class="text-muted text-xs">—</td>
                   </tr>
                 `;
-    }).join('')}
+  }).join('')}
           </tbody>
         </table>
       </div>
@@ -160,8 +162,8 @@ export function renderDashboard() {
             </thead>
             <tbody>
               ${recentTrips.map(trip => {
-        const vehicle = store.getVehicle(trip.vehicleId);
-        return `
+    const vehicle = store.getVehicle(trip.vehicleId);
+    return `
                   <tr>
                     <td>
                       <div style="font-weight:600;font-size:var(--fs-sm)">${(trip.origin || '').split(' ')[0]}</div>
@@ -179,7 +181,7 @@ export function renderDashboard() {
                     <td class="text-muted text-xs">${formatDate(trip.createdAt)}</td>
                   </tr>
                 `;
-    }).join('')}
+  }).join('')}
             </tbody>
           </table>
         </div>
@@ -222,8 +224,8 @@ export function renderDashboard() {
           </thead>
           <tbody>
             ${maintenanceAlerts.map(m => {
-        const v = store.getVehicle(m.vehicleId);
-        return `
+    const v = store.getVehicle(m.vehicleId);
+    return `
                 <tr>
                   <td class="font-bold">${v ? v.name : 'Unknown'}</td>
                   <td>${m.type}</td>
@@ -231,7 +233,7 @@ export function renderDashboard() {
                   <td>${formatCurrency(m.cost)}</td>
                 </tr>
               `;
-    }).join('')}
+  }).join('')}
           </tbody>
         </table>
       </div>
@@ -239,54 +241,54 @@ export function renderDashboard() {
     ` : ''}
   `;
 
-    const headerActions = [
-        store.vehicles.length === 0
-            ? `<button class="btn btn-primary btn-sm" id="seed-demo-btn"><span class="material-symbols-rounded">science</span> Seed Demo Data</button>`
-            : '',
-        `<button class="btn btn-secondary btn-sm" id="refresh-dashboard-btn"><span class="material-symbols-rounded">refresh</span> Refresh</button>`,
-    ].filter(Boolean).join(' ');
+  const headerActions = [
+    store.vehicles.length === 0
+      ? `<button class="btn btn-primary btn-sm" id="seed-demo-btn"><span class="material-symbols-rounded">science</span> Seed Demo Data</button>`
+      : '',
+    `<button class="btn btn-secondary btn-sm" id="refresh-dashboard-btn"><span class="material-symbols-rounded">refresh</span> Refresh</button>`,
+  ].filter(Boolean).join(' ');
 
-    app.innerHTML = renderShell(
-        'Command Center',
-        'Fleet oversight & real-time KPIs',
-        headerActions,
-        bodyContent
-    );
-    bindShellEvents();
+  app.innerHTML = renderShell(
+    'Command Center',
+    'Fleet oversight & real-time KPIs',
+    headerActions,
+    bodyContent
+  );
+  bindShellEvents();
 
-    document.getElementById('refresh-dashboard-btn')?.addEventListener('click', async () => {
+  document.getElementById('refresh-dashboard-btn')?.addEventListener('click', async () => {
+    await store.fetchAll();
+    renderDashboard();
+  });
+
+  document.getElementById('seed-demo-btn')?.addEventListener('click', async () => {
+    const btn = document.getElementById('seed-demo-btn');
+    if (btn) { btn.disabled = true; btn.innerHTML = '<span class="material-symbols-rounded">hourglass_empty</span> Seeding...'; }
+    try {
+      const token = localStorage.getItem('fleetflow_token');
+      const res = await fetch('/api/seed', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` } });
+      const data = await res.json();
+      if (data.success) {
         await store.fetchAll();
         renderDashboard();
-    });
+      }
+    } catch (e) { }
+  });
 
-    document.getElementById('seed-demo-btn')?.addEventListener('click', async () => {
-        const btn = document.getElementById('seed-demo-btn');
-        if (btn) { btn.disabled = true; btn.innerHTML = '<span class="material-symbols-rounded">hourglass_empty</span> Seeding...'; }
-        try {
-            const token = localStorage.getItem('fleetflow_token');
-            const res = await fetch('/api/seed', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` } });
-            const data = await res.json();
-            if (data.success) {
-                await store.fetchAll();
-                renderDashboard();
-            }
-        } catch (e) { }
-    });
-
-    document.getElementById('dash-search')?.addEventListener('input', (e) => {
-        dashSearch = e.target.value;
-        renderDashboard();
-    });
-    document.querySelectorAll('#dash-vehicle-type .chip').forEach(c => {
-        c.addEventListener('click', () => { dashVehicleType = c.dataset.type; renderDashboard(); });
-    });
-    document.querySelectorAll('#dash-status .chip').forEach(c => {
-        c.addEventListener('click', () => { dashStatus = c.dataset.status; renderDashboard(); });
-    });
-    document.querySelectorAll('#dash-region .chip').forEach(c => {
-        c.addEventListener('click', () => { dashRegion = c.dataset.region; renderDashboard(); });
-    });
-    document.querySelectorAll('[data-nav]').forEach(el => {
-        el.addEventListener('click', () => { const path = el.dataset.nav; if (path) router.navigate(path); });
-    });
+  document.getElementById('dash-search')?.addEventListener('input', (e) => {
+    dashSearch = e.target.value;
+    renderDashboard();
+  });
+  document.querySelectorAll('#dash-vehicle-type .chip').forEach(c => {
+    c.addEventListener('click', () => { dashVehicleType = c.dataset.type; renderDashboard(); });
+  });
+  document.querySelectorAll('#dash-status .chip').forEach(c => {
+    c.addEventListener('click', () => { dashStatus = c.dataset.status; renderDashboard(); });
+  });
+  document.querySelectorAll('#dash-region .chip').forEach(c => {
+    c.addEventListener('click', () => { dashRegion = c.dataset.region; renderDashboard(); });
+  });
+  document.querySelectorAll('[data-nav]').forEach(el => {
+    el.addEventListener('click', () => { const path = el.dataset.nav; if (path) router.navigate(path); });
+  });
 }

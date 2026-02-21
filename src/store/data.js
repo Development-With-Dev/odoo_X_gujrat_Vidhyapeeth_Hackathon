@@ -53,11 +53,17 @@ class Store {
             this._api('GET', '/expenses'),
         ]);
         if (v.success) this._data.vehicles = v.data || [];
+        else console.warn('[FleetFlow] Failed to fetch vehicles:', v.error);
         if (d.success) this._data.drivers = d.data || [];
+        else console.warn('[FleetFlow] Failed to fetch drivers:', d.error);
         if (t.success) this._data.trips = t.data || [];
+        else console.warn('[FleetFlow] Failed to fetch trips:', t.error);
         if (m.success) this._data.maintenance = m.data || [];
+        else console.warn('[FleetFlow] Failed to fetch maintenance:', m.error);
         if (f.success) this._data.fuelLogs = f.data || [];
+        else console.warn('[FleetFlow] Failed to fetch fuel logs:', f.error);
         if (e.success) this._data.expenses = e.data || [];
+        else console.warn('[FleetFlow] Failed to fetch expenses:', e.error);
         this._notify();
     }
 
