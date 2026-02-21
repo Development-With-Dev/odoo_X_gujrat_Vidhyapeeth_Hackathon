@@ -26,37 +26,7 @@ export function renderAnalytics() {
   });
 
   const body = `
-  <div class="card mb-6" style="border-left:4px solid var(--c-accent-light);background:var(--bg-elevated)">
-    <div class="card-body" style="display:flex;gap:var(--sp-5);align-items:flex-start;flex-wrap:wrap">
-      <div style="flex:1;min-width:220px">
-        <div style="display:flex;align-items:center;gap:var(--sp-2);margin-bottom:var(--sp-2)">
-          <span class="material-symbols-rounded" style="color:var(--c-accent-light);font-size:20px">bar_chart</span>
-          <span style="font-weight:700;font-size:var(--fs-base)">Analytics & Reports — Data-Driven Decisions</span>
-        </div>
-        <p style="font-size:var(--fs-sm);color:var(--text-secondary);line-height:1.7;margin:0">
-          Operational and financial intelligence across your fleet. Track fuel efficiency, vehicle ROI, and cost per km. Export full reports as <strong>Excel (7 sheets)</strong> or <strong>PDF</strong> for monthly payroll and health audits.
-        </p>
-      </div>
-      <div style="display:flex;gap:var(--sp-4);flex-wrap:wrap">
-        ${[
-      { icon: 'local_gas_station', color: 'var(--c-warning)', label: 'Fuel Efficiency', desc: 'km / L per vehicle' },
-      { icon: 'trending_up', color: 'var(--c-success)', label: 'Vehicle ROI', desc: '(Revenue − Ops Cost) ÷ Acquisition Cost' },
-      { icon: 'route', color: 'var(--c-info)', label: 'Cost per km', desc: 'Total ops cost ÷ distance driven' },
-      { icon: 'table_view', color: 'var(--c-accent-light)', label: 'Excel / PDF Export', desc: 'One-click full report generation' },
-    ].map(item => `
-          <div style="display:flex;gap:var(--sp-2);align-items:flex-start;min-width:165px">
-            <span class="material-symbols-rounded" style="font-size:18px;color:${item.color};margin-top:2px">${item.icon}</span>
-            <div>
-              <div style="font-weight:600;font-size:var(--fs-sm)">${item.label}</div>
-              <div style="font-size:var(--fs-xs);color:var(--text-muted)">${item.desc}</div>
-            </div>
-          </div>`).join('')}
-      </div>
-    </div>
-  </div>
-
   <div class="kpi-grid">
-
     <div class="kpi-card"><div class="kpi-icon green"><span class="material-symbols-rounded">trending_up</span></div>
       <div class="kpi-value" style="color:var(--c-success)" title="${formatCurrency(totalRevenue)}">${formatCompact(totalRevenue)}</div><div class="kpi-label">Total Revenue</div></div>
     <div class="kpi-card"><div class="kpi-icon red"><span class="material-symbols-rounded">money_off</span></div>

@@ -15,35 +15,6 @@ export function renderDrivers() {
   const expiredDrivers = store.drivers.filter(d => d.licenseExpiry < today());
 
   const body = `
-  <div class="card mb-6" style="border-left:4px solid var(--c-accent-light);background:var(--bg-elevated)">
-    <div class="card-body" style="display:flex;gap:var(--sp-5);align-items:flex-start;flex-wrap:wrap">
-      <div style="flex:1;min-width:220px">
-        <div style="display:flex;align-items:center;gap:var(--sp-2);margin-bottom:var(--sp-2)">
-          <span class="material-symbols-rounded" style="color:var(--c-accent-light);font-size:20px">badge</span>
-          <span style="font-weight:700;font-size:var(--fs-base)">Driver Profiles & Safety — HR & Compliance</span>
-        </div>
-        <p style="font-size:var(--fs-sm);color:var(--text-secondary);line-height:1.7;margin:0">
-          Manage driver compliance, performance, and availability. Drivers with <strong>expired licenses</strong> are blocked from trip assignment. Toggle status between On Duty, Off Duty, or Suspended.
-        </p>
-      </div>
-      <div style="display:flex;gap:var(--sp-4);flex-wrap:wrap">
-        ${[
-      { icon: 'gpp_bad', color: 'var(--c-danger)', label: 'License Compliance', desc: 'Expired licenses block assignment' },
-      { icon: 'emoji_events', color: 'var(--c-warning)', label: 'Safety Score', desc: 'Performance rating out of 100' },
-      { icon: 'check_circle', color: 'var(--c-success)', label: 'Trip Completion Rate', desc: 'Completed vs cancelled trips' },
-      { icon: 'toggle_on', color: 'var(--c-info)', label: 'Status Toggle', desc: 'On Duty / Off Duty / Suspended' },
-    ].map(item => `
-          <div style="display:flex;gap:var(--sp-2);align-items:flex-start;min-width:165px">
-            <span class="material-symbols-rounded" style="font-size:18px;color:${item.color};margin-top:2px">${item.icon}</span>
-            <div>
-              <div style="font-weight:600;font-size:var(--fs-sm)">${item.label}</div>
-              <div style="font-size:var(--fs-xs);color:var(--text-muted)">${item.desc}</div>
-            </div>
-          </div>`).join('')}
-      </div>
-    </div>
-  </div>
-
   <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr)">
     <div class="kpi-card"><div class="kpi-icon blue"><span class="material-symbols-rounded">groups</span></div><div class="kpi-value">${store.drivers.length}</div><div class="kpi-label">Total Drivers</div></div>
     <div class="kpi-card"><div class="kpi-icon green"><span class="material-symbols-rounded">shield</span></div><div class="kpi-value">${avgSafety}</div><div class="kpi-label">Avg Safety Score</div>
@@ -55,7 +26,7 @@ export function renderDrivers() {
   ${expiredDrivers.length ? `<div class="card mb-6" style="border-color:rgba(239,68,68,.3)"><div class="card-header" style="background:var(--c-danger-bg)"><span class="card-title flex items-center gap-2" style="color:var(--c-danger)"><span class="material-symbols-rounded">warning</span>Expired License Alerts</span></div><div class="card-body">${expiredDrivers.map(d => `<div class="flex items-center gap-3" style="padding:4px 0"><div class="driver-avatar">${d.name[0]}</div><span style="font-weight:600;flex:1">${d.name}</span><span class="text-sm" style="color:var(--c-danger)">Expired: ${formatDate(d.licenseExpiry)}</span></div>`).join('')}</div></div>` : ''}
   <div class="card"><div class="data-table-wrap"><table class="data-table"><thead><tr><th>Driver</th><th>Phone</th><th>License</th><th>Categories</th><th>Expiry</th><th>Safety</th><th>Trips</th><th>Status</th><th>Actions</th></tr></thead><tbody>
   ${drivers.map(d => {
-      const exp = d.licenseExpiry < today(); const rate = d.tripsCompleted + d.tripsCancelled > 0 ? ((d.tripsCompleted / (d.tripsCompleted + d.tripsCancelled)) * 100).toFixed(0) : 100; return `<tr>
+    const exp = d.licenseExpiry < today(); const rate = d.tripsCompleted + d.tripsCancelled > 0 ? ((d.tripsCompleted / (d.tripsCompleted + d.tripsCancelled)) * 100).toFixed(0) : 100; return `<tr>
     <td><div class="flex items-center gap-3"><div class="driver-avatar">${d.name[0]}</div><div style="font-weight:600">${d.name}</div></div></td>
     <td class="text-sm">${d.phone}</td>
     <td><code style="background:var(--bg-elevated);padding:2px 6px;border-radius:4px;font-size:var(--fs-xs)">${d.licenseNumber}</code></td>
