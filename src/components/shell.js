@@ -27,7 +27,7 @@ export function renderShell(pageTitle, subtitle, headerActions, bodyContent) {
         <div class="sidebar-brand">
           <div class="sidebar-brand-icon"><span class="material-symbols-rounded">hub</span></div>
           <div>
-            <h1>FleetFlow</h1>
+            <h1 style="color:var(--text-primary)">FleetFlow</h1>
             <span>Fleet Management</span>
           </div>
         </div>

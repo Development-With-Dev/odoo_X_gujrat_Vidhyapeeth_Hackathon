@@ -20,7 +20,7 @@ const crosshairPlugin = {
       ctx.moveTo(x, topY);
       ctx.lineTo(x, bottomY);
       ctx.lineWidth = 1;
-      ctx.strokeStyle = 'rgba(99,102,241,0.4)';
+      ctx.strokeStyle = 'rgba(113,75,103,0.4)';
       ctx.stroke();
       ctx.restore();
     }
@@ -39,12 +39,12 @@ const centerTextPlugin = {
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.font = '800 22px Inter, sans-serif';
-    ctx.fillStyle = '#f0f2f8';
+    ctx.fillStyle = '#e9ecef';
     const cx = width / 2;
     const cy = height / 2 - 6;
     ctx.fillText('₹' + (total >= 100000 ? (total / 100000).toFixed(1) + 'L' : total >= 1000 ? (total / 1000).toFixed(0) + 'K' : total), cx, cy);
     ctx.font = '500 11px Inter, sans-serif';
-    ctx.fillStyle = '#64748b';
+    ctx.fillStyle = '#6c757d';
     ctx.fillText('Total Cost', cx, cy + 22);
     ctx.restore();
   }
@@ -52,17 +52,17 @@ const centerTextPlugin = {
 
 Chart.register(crosshairPlugin, centerTextPlugin);
 
-/* ─── Color Palette ──────────────────────────────────────── */
+/* ─── Color Palette (Odoo Dark Theme) ────────────────────── */
 const C = {
-  primary: '#6366f1', primaryLight: '#818cf8', primaryGlow: 'rgba(99,102,241,0.35)',
-  success: '#22c55e', successLight: '#4ade80', successGlow: 'rgba(34,197,94,0.25)',
-  danger: '#ef4444', dangerLight: '#f87171', dangerGlow: 'rgba(239,68,68,0.25)',
-  warning: '#f59e0b', warningLight: '#fbbf24',
-  info: '#3b82f6', infoLight: '#60a5fa',
-  purple: '#a855f7', purpleLight: '#c084fc',
-  cyan: '#06b6d4', rose: '#f43f5e', emerald: '#10b981',
-  text: '#f0f2f8', textSec: '#94a3b8', textMuted: '#64748b',
-  grid: 'rgba(255,255,255,0.05)', bgCard: '#1a1f35',
+  primary: '#714B67', primaryLight: '#875A7B', primaryGlow: 'rgba(113,75,103,0.35)',
+  success: '#28a745', successLight: '#3bc55e', successGlow: 'rgba(40,167,69,0.25)',
+  danger: '#dc3545', dangerLight: '#e4606d', dangerGlow: 'rgba(220,53,69,0.25)',
+  warning: '#e6a817', warningLight: '#f0c040',
+  info: '#17a2b8', infoLight: '#3dbfd4',
+  purple: '#714B67', purpleLight: '#875A7B',
+  cyan: '#17a2b8', rose: '#dc3545', emerald: '#28a745',
+  text: '#e9ecef', textSec: '#adb5bd', textMuted: '#6c757d',
+  grid: 'rgba(255,255,255,0.05)', bgCard: '#2c3036',
 };
 
 /* ─── Gradient helper ────────────────────────────────────── */
@@ -75,8 +75,8 @@ function makeGradient(ctx, chartArea, c1, c2) {
 
 /* ─── Shared tooltip ─────────────────────────────────────── */
 const prettyTooltip = {
-  backgroundColor: 'rgba(15,23,42,0.95)', titleColor: '#f0f2f8', bodyColor: '#cbd5e1',
-  borderColor: 'rgba(99,102,241,0.3)', borderWidth: 1, padding: 14, cornerRadius: 12,
+  backgroundColor: 'rgba(20,22,25,0.95)', titleColor: '#e9ecef', bodyColor: '#adb5bd',
+  borderColor: 'rgba(113,75,103,0.3)', borderWidth: 1, padding: 14, cornerRadius: 8,
   titleFont: { family: "'Inter',sans-serif", weight: '700', size: 13 },
   bodyFont: { family: "'Inter',sans-serif", size: 12 },
   displayColors: true, boxPadding: 6, usePointStyle: true,
@@ -202,7 +202,7 @@ export function renderAnalytics() {
 
   <!-- CHART 4: Fuel Efficiency -->
   <div class="card analytics-chart-card mb-6">
-    <div class="card-header" style="background:linear-gradient(90deg,rgba(245,158,11,0.06),transparent)">
+    <div class="card-header">
       <span class="card-title flex items-center gap-2"><span class="material-symbols-rounded" style="color:${C.warning}">local_gas_station</span> Fuel Efficiency per Vehicle</span>
       <span class="status-pill" style="background:var(--c-warning-bg);color:var(--c-warning)">Avg: ${avgEff} km/L</span>
     </div>
@@ -211,7 +211,7 @@ export function renderAnalytics() {
 
   <!-- CHART 5: Last Trip Fuel CPK -->
   <div class="card analytics-chart-card mb-6">
-    <div class="card-header" style="background:linear-gradient(90deg,rgba(59,130,246,0.06),transparent)">
+    <div class="card-header">
       <span class="card-title flex items-center gap-2"><span class="material-symbols-rounded" style="color:${C.info}">speed</span> Last Trip Performance (Fuel ₹/km)</span>
       <span class="text-xs text-muted">Based on most recent completed trip and nearest fuel log</span>
     </div>
@@ -220,7 +220,7 @@ export function renderAnalytics() {
 
   <!-- CHART 6: ROI -->
   <div class="card analytics-chart-card mb-6">
-    <div class="card-header" style="background:linear-gradient(90deg,rgba(99,102,241,0.06),transparent)">
+    <div class="card-header">
       <span class="card-title flex items-center gap-2"><span class="material-symbols-rounded" style="color:${C.primary}">account_balance</span> Vehicle ROI — Revenue vs Cost</span>
       <button class="btn btn-ghost btn-sm" id="exp-roi"><span class="material-symbols-rounded" style="font-size:16px">download</span> CSV</button>
     </div>
@@ -242,7 +242,7 @@ export function renderAnalytics() {
 
   <!-- DEAD STOCK -->
   <div class="card mb-6" style="border-color:${deadVehicles.length ? 'rgba(245,158,11,0.3)' : 'var(--border-subtle)'}">
-    <div class="card-header" style="${deadVehicles.length ? 'background:linear-gradient(90deg,rgba(245,158,11,0.08),transparent)' : ''}">
+    <div class="card-header">
       <span class="card-title flex items-center gap-2">
         <span class="material-symbols-rounded" style="color:${deadVehicles.length ? C.warning : C.success}">${deadVehicles.length ? 'inventory' : 'verified'}</span>
         Dead Stock Alerts ${deadVehicles.length ? `<span class="nav-item-badge">${deadVehicles.length}</span>` : ''}
@@ -262,9 +262,9 @@ export function renderAnalytics() {
     <div class="card-header"><span class="card-title flex items-center gap-2"><span class="material-symbols-rounded" style="color:${C.primaryLight}">summarize</span> One-Click Reports</span></div>
     <div class="card-body">
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--sp-4)">
-        <button class="one-click-report-card" id="exp-pdf"><div style="width:48px;height:48px;border-radius:var(--radius-lg);background:linear-gradient(135deg,#ef4444,#dc2626);display:flex;align-items:center;justify-content:center;margin-bottom:var(--sp-3)"><span class="material-symbols-rounded" style="font-size:22px;color:#fff">picture_as_pdf</span></div><div style="font-weight:700">PDF Report</div><div class="text-xs text-muted">Print-ready analytics</div></button>
-        <button class="one-click-report-card" id="exp-xl"><div style="width:48px;height:48px;border-radius:var(--radius-lg);background:linear-gradient(135deg,#22c55e,#16a34a);display:flex;align-items:center;justify-content:center;margin-bottom:var(--sp-3)"><span class="material-symbols-rounded" style="font-size:22px;color:#fff">table_view</span></div><div style="font-weight:700">Excel Report</div><div class="text-xs text-muted">8-sheet workbook</div></button>
-        <button class="one-click-report-card" id="exp-csv"><div style="width:48px;height:48px;border-radius:var(--radius-lg);background:linear-gradient(135deg,#3b82f6,#2563eb);display:flex;align-items:center;justify-content:center;margin-bottom:var(--sp-3)"><span class="material-symbols-rounded" style="font-size:22px;color:#fff">csv</span></div><div style="font-weight:700">CSV Export</div><div class="text-xs text-muted">Vehicle ROI data</div></button>
+        <button class="one-click-report-card" id="exp-pdf"><div style="width:44px;height:44px;border-radius:var(--radius-md);background:#dc3545;display:flex;align-items:center;justify-content:center;margin-bottom:var(--sp-3)"><span class="material-symbols-rounded" style="font-size:20px;color:#fff">picture_as_pdf</span></div><div style="font-weight:700">PDF Report</div><div class="text-xs text-muted">Print-ready analytics</div></button>
+        <button class="one-click-report-card" id="exp-xl"><div style="width:44px;height:44px;border-radius:var(--radius-md);background:#28a745;display:flex;align-items:center;justify-content:center;margin-bottom:var(--sp-3)"><span class="material-symbols-rounded" style="font-size:20px;color:#fff">table_view</span></div><div style="font-weight:700">Excel Report</div><div class="text-xs text-muted">8-sheet workbook</div></button>
+        <button class="one-click-report-card" id="exp-csv"><div style="width:44px;height:44px;border-radius:var(--radius-md);background:#17a2b8;display:flex;align-items:center;justify-content:center;margin-bottom:var(--sp-3)"><span class="material-symbols-rounded" style="font-size:20px;color:#fff">csv</span></div><div style="font-weight:700">CSV Export</div><div class="text-xs text-muted">Vehicle ROI data</div></button>
       </div>
     </div>
   </div>`;
@@ -288,15 +288,12 @@ export function renderAnalytics() {
           borderWidth: 3,
           tension: 0.45,
           fill: true,
-          backgroundColor: ctx => {
-            if (!ctx.chart.chartArea) return 'transparent';
-            return makeGradient(ctx.chart.ctx, ctx.chart.chartArea, 'rgba(34,197,94,0.25)', 'rgba(34,197,94,0.01)');
-          },
+          backgroundColor: 'rgba(40,167,69,0.1)',
           pointRadius: 6,
           pointHoverRadius: 10,
           pointBackgroundColor: C.success,
-          pointBorderColor: '#fff',
-          pointBorderWidth: 2.5,
+          pointBorderColor: '#2c3036',
+          pointBorderWidth: 2,
           pointHoverBorderWidth: 3,
           pointHoverBackgroundColor: '#fff',
           pointHoverBorderColor: C.success,
@@ -308,15 +305,12 @@ export function renderAnalytics() {
           borderWidth: 3,
           tension: 0.45,
           fill: true,
-          backgroundColor: ctx => {
-            if (!ctx.chart.chartArea) return 'transparent';
-            return makeGradient(ctx.chart.ctx, ctx.chart.chartArea, 'rgba(239,68,68,0.18)', 'rgba(239,68,68,0.01)');
-          },
+          backgroundColor: 'rgba(220,53,69,0.08)',
           pointRadius: 6,
           pointHoverRadius: 10,
           pointBackgroundColor: C.danger,
-          pointBorderColor: '#fff',
-          pointBorderWidth: 2.5,
+          pointBorderColor: '#2c3036',
+          pointBorderWidth: 2,
           pointHoverBorderWidth: 3,
           pointHoverBackgroundColor: '#fff',
           pointHoverBorderColor: C.danger,
@@ -382,16 +376,11 @@ export function renderAnalytics() {
       datasets: [{
         label: 'Trips',
         data: mTrips,
-        backgroundColor: ctx => {
-          if (!ctx.chart.chartArea) return C.primary;
-          return makeGradient(ctx.chart.ctx, ctx.chart.chartArea, 'rgba(99,102,241,0.85)', 'rgba(168,85,247,0.65)');
-        },
-        hoverBackgroundColor: ctx => {
-          if (!ctx.chart.chartArea) return C.primaryLight;
-          return makeGradient(ctx.chart.ctx, ctx.chart.chartArea, C.primaryLight, C.purpleLight);
-        },
-        borderColor: 'transparent',
-        borderRadius: 10,
+        backgroundColor: 'rgba(113,75,103,0.7)',
+        hoverBackgroundColor: C.primaryLight,
+        borderColor: C.primary,
+        borderWidth: 1,
+        borderRadius: 6,
         borderSkipped: false,
         barPercentage: 0.65,
       }],
@@ -554,14 +543,11 @@ export function renderAnalytics() {
         borderWidth: 3,
         tension: 0.45,
         fill: true,
-        backgroundColor: ctx => {
-          if (!ctx.chart.chartArea) return 'transparent';
-          return makeGradient(ctx.chart.ctx, ctx.chart.chartArea, 'rgba(99,102,241,0.3)', 'rgba(99,102,241,0.01)');
-        },
+        backgroundColor: 'rgba(113,75,103,0.12)',
         pointRadius: 7,
         pointHoverRadius: 11,
         pointBackgroundColor: mProfit.map(v => v >= 0 ? C.success : C.danger),
-        pointBorderColor: '#fff',
+        pointBorderColor: '#2c3036',
         pointBorderWidth: 3,
         pointHoverBorderWidth: 4,
         pointHoverBackgroundColor: '#fff',
@@ -612,7 +598,7 @@ export function renderAnalytics() {
         pointRadius: 4,
         pointHoverRadius: 7,
         pointBackgroundColor: radarColors[i],
-        pointBorderColor: '#fff',
+        pointBorderColor: '#2c3036',
         pointBorderWidth: 2,
       })),
     },
@@ -687,9 +673,9 @@ export function renderAnalytics() {
       { label: 'Total Revenue', value: formatCurrency(totalRevenue), color: '#22c55e' },
       { label: 'Total Costs', value: formatCurrency(totalFuel + totalMaint + totalExpense), color: '#ef4444' },
       { label: 'Net Profit', value: formatCurrency(netProfit), color: netProfit >= 0 ? '#22c55e' : '#ef4444' },
-      { label: 'Profit Margin', value: profitMargin, color: '#6366f1' },
-      { label: 'Completed Trips', value: String(completedTrips.length), color: '#3b82f6' },
-      { label: 'Fleet Size', value: String(vehicles.length), color: '#8b5cf6' },
+      { label: 'Profit Margin', value: profitMargin, color: '#714B67' },
+      { label: 'Completed Trips', value: String(completedTrips.length), color: '#17a2b8' },
+      { label: 'Fleet Size', value: String(vehicles.length), color: '#714B67' },
     ];
 
     exportPDF({

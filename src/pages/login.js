@@ -236,13 +236,13 @@ function heroPanel() {
   return `
     <div class="login-hero">
       <div class="login-hero-content">
-        <div class="login-hero-icon"><span class="material-symbols-rounded" style="font-size:4rem">hub</span></div>
+        <div class="login-hero-icon"><span class="material-symbols-rounded" style="font-size:4rem;color:white">hub</span></div>
         <h2>FleetFlow</h2>
         <p>Replace inefficient manual logbooks with a centralized, rule-based digital hub that optimizes your delivery fleet lifecycle.</p>
         <div style="margin-top:2rem;display:flex;gap:1.5rem;justify-content:center;flex-wrap:wrap">
-          <div style="text-align:center"><div style="font-size:1.75rem;font-weight:800;color:white">Fleet</div><div style="font-size:0.75rem;color:rgba(255,255,255,0.7)">Management</div></div>
-          <div style="text-align:center"><div style="font-size:1.75rem;font-weight:800;color:white">RBAC</div><div style="font-size:0.75rem;color:rgba(255,255,255,0.7)">Roles</div></div>
-          <div style="text-align:center"><div style="font-size:1.75rem;font-weight:800;color:white">99%</div><div style="font-size:0.75rem;color:rgba(255,255,255,0.7)">Uptime</div></div>
+          <div style="text-align:center;padding:var(--sp-3) var(--sp-4);background:rgba(255,255,255,0.08);border-radius:var(--radius-md)"><div style="font-size:1.5rem;font-weight:800;color:white">Fleet</div><div style="font-size:0.7rem;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:0.08em">Management</div></div>
+          <div style="text-align:center;padding:var(--sp-3) var(--sp-4);background:rgba(255,255,255,0.08);border-radius:var(--radius-md)"><div style="font-size:1.5rem;font-weight:800;color:white">RBAC</div><div style="font-size:0.7rem;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:0.08em">Roles</div></div>
+          <div style="text-align:center;padding:var(--sp-3) var(--sp-4);background:rgba(255,255,255,0.08);border-radius:var(--radius-md)"><div style="font-size:1.5rem;font-weight:800;color:white">99%</div><div style="font-size:0.7rem;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:0.08em">Uptime</div></div>
         </div>
       </div>
     </div>`;
