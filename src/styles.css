@@ -967,54 +967,76 @@ button {
   background: var(--bg-primary);
 }
 
-/* Side-by-side Login | Register (wireframe) */
-.login-split .login-forms-row {
+/* Side-by-side Login | Register — now separate pages */
+.login-form-side {
   flex: 1;
   display: flex;
-  align-items: stretch;
+  align-items: center;
   justify-content: center;
-  gap: 0;
-  padding: var(--sp-8);
+  padding: var(--sp-12);
   background: var(--bg-primary);
-  max-width: 900px;
-  margin: 0 auto;
 }
 
-.login-split .login-form-box {
-  flex: 1;
-  padding: var(--sp-8);
-  display: flex;
-  flex-direction: column;
-  min-width: 280px;
+/* Input icon wrapper */
+.input-icon-wrap {
+  position: relative;
 }
 
-.login-split .login-form-divider {
-  width: 1px;
-  background: var(--border-color);
-  margin: var(--sp-4) 0;
+.input-icon-wrap .input-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 20px;
+  color: var(--text-muted);
+  pointer-events: none;
+  transition: color var(--t-fast) ease;
 }
 
-.login-split .login-form-heading {
-  font-size: var(--fs-xl);
-  font-weight: 700;
-  margin-bottom: var(--sp-4);
-  letter-spacing: -0.02em;
+.input-icon-wrap .form-input.has-icon {
+  padding-left: 40px;
 }
 
-.login-split .login-register-desc {
+.input-icon-wrap:focus-within .input-icon {
+  color: var(--c-accent-light);
+}
+
+/* Auth page switch link */
+.auth-switch {
+  text-align: center;
+  margin-top: var(--sp-6);
+  padding-top: var(--sp-6);
+  border-top: 1px solid var(--border-subtle);
   font-size: var(--fs-sm);
   color: var(--text-muted);
-  margin-bottom: var(--sp-5);
 }
 
-.login-split .login-form {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-4);
+.auth-link {
+  color: var(--c-accent-light);
+  text-decoration: none;
+  font-weight: 600;
+  transition: color var(--t-fast) ease;
 }
 
-.login-split .login-form .btn-primary {
-  margin-top: var(--sp-2);
+.auth-link:hover {
+  color: var(--c-accent);
+  text-decoration: underline;
+}
+
+/* Back-to-login */
+.back-to-login {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color var(--t-fast) ease;
+}
+
+.back-to-login:hover {
+  color: var(--c-accent-light);
 }
 
 .login-form-container {
@@ -1334,14 +1356,11 @@ button {
     display: none;
   }
 
-  .login-split .login-forms-row {
-    flex-direction: column;
-    max-width: 420px;
+  .login-form-side {
+    padding: var(--sp-6);
   }
 
-  .login-split .login-form-divider {
-    width: 100%;
-    height: 1px;
-    margin: var(--sp-2) 0;
+  .form-row-2 {
+    grid-template-columns: 1fr;
   }
 }

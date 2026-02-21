@@ -1,7 +1,7 @@
 import './styles.css';
 import { router } from './utils/router.js';
 import { store } from './store/data.js';
-import { renderLogin } from './pages/login.js';
+import { renderLogin, renderRegister } from './pages/login.js';
 import { renderDashboard } from './pages/dashboard.js';
 import { renderVehicles } from './pages/vehicles.js';
 import { renderTrips } from './pages/trips.js';
@@ -21,6 +21,7 @@ function guard(renderFn) {
 }
 
 router.register('/login', renderLogin);
+router.register('/register', renderRegister);
 router.register('/dashboard', guard(renderDashboard));
 router.register('/vehicles', guard(renderVehicles));
 router.register('/trips', guard(renderTrips));
@@ -41,13 +42,13 @@ async function init() {
     const restored = await store.restoreSession();
 
     if (restored) {
-        if (!window.location.hash || window.location.hash === '#/login') {
+        if (!window.location.hash || window.location.hash === '#/login' || window.location.hash === '#/register') {
             router.navigate('/dashboard');
         } else {
             router.start();
         }
     } else {
-        if (!window.location.hash || window.location.hash !== '#/login') {
+        if (!window.location.hash || (window.location.hash !== '#/login' && window.location.hash !== '#/register')) {
             router.navigate('/login');
         }
         router.start();
