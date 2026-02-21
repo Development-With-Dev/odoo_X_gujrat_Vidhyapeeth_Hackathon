@@ -90,20 +90,64 @@ export function exportCSV(data, filename) {
     URL.revokeObjectURL(url);
 }
 
-export function exportExcel(data, filename) {
-    if (!data.length) return;
+
+export function exportExcel(sheets, filename) {
     import('xlsx').then(XLSX => {
-        const ws = XLSX.utils.json_to_sheet(data);
-        /* Auto-size columns based on content width */
-        const keys = Object.keys(data[0]);
-        ws['!cols'] = keys.map(k => {
-            const maxLen = Math.max(k.length, ...data.map(r => String(r[k] ?? '').length));
-            return { wch: Math.min(maxLen + 2, 40) };
-        });
         const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, 'Report');
+        const sheetMap = Array.isArray(sheets) ? { Report: sheets } : sheets;
+        for (const [name, data] of Object.entries(sheetMap)) {
+            if (!data || !data.length) continue;
+            const ws = XLSX.utils.json_to_sheet(data);
+            const keys = Object.keys(data[0]);
+            ws['!cols'] = keys.map(k => {
+                const maxLen = Math.max(k.length, ...data.map(r => String(r[k] ?? '').length));
+                return { wch: Math.min(maxLen + 2, 40) };
+            });
+            XLSX.utils.book_append_sheet(wb, ws, name.slice(0, 31));
+        }
         XLSX.writeFile(wb, filename);
     });
+}
+
+export function exportPDF({ title, generated, sections }) {
+    const win = window.open('', '_blank');
+    if (!win) { toast('Please allow pop-ups to export PDF', 'error'); return; }
+
+    const tableHTML = (rows) => {
+        if (!rows || !rows.length) return '<p style="color:#888">No data available.</p>';
+        const keys = Object.keys(rows[0]);
+        return `<table>
+            <thead><tr>${keys.map(k => `<th>${k}</th>`).join('')}</tr></thead>
+            <tbody>${rows.map(r => `<tr>${keys.map(k => `<td>${r[k] ?? ''}</td>`).join('')}</tr>`).join('')}</tbody>
+        </table>`;
+    };
+
+    win.document.write(`<!DOCTYPE html><html><head><title>${title}</title>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body { font-family: 'Inter', sans-serif; color: #1a1a2e; padding: 40px; background: #fff; }
+      .header { text-align: center; margin-bottom: 32px; padding-bottom: 20px; border-bottom: 3px solid #6c63ff; }
+      .header h1 { font-size: 24px; color: #6c63ff; margin-bottom: 4px; }
+      .header p { font-size: 12px; color: #888; }
+      .section { margin-bottom: 28px; }
+      .section h2 { font-size: 15px; color: #fff; background: linear-gradient(135deg, #6c63ff, #48c6ef); padding: 8px 16px; border-radius: 6px; margin-bottom: 10px; }
+      table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 8px; }
+      th { background: #f0f0f8; color: #333; font-weight: 700; text-align: left; padding: 8px 10px; border-bottom: 2px solid #ddd; }
+      td { padding: 7px 10px; border-bottom: 1px solid #eee; }
+      tr:nth-child(even) td { background: #fafafe; }
+      .footer { text-align: center; font-size: 10px; color: #aaa; margin-top: 32px; padding-top: 16px; border-top: 1px solid #eee; }
+      @media print { body { padding: 20px; } .no-print { display: none; } @page { size: A4 landscape; margin: 15mm; } }
+    </style></head><body>
+    <div class="header">
+      <h1>📊 ${title}</h1>
+      <p>Generated: ${generated || new Date().toLocaleString('en-IN')}</p>
+    </div>
+    ${sections.map(s => `<div class="section"><h2>${s.heading}</h2>${tableHTML(s.rows)}</div>`).join('')}
+    <div class="footer">FleetFlow — Fleet & Logistics Management System</div>
+    <script>window.onload=function(){window.print();}<\/script>
+    </body></html>`);
+    win.document.close();
 }
 
 export function debounce(fn, ms = 300) {

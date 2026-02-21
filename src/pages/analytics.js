@@ -1,6 +1,6 @@
 import { store } from '../store/data.js';
 import { renderShell, bindShellEvents } from '../components/shell.js';
-import { formatCurrency, formatCompact, vehicleIcon, exportCSV, exportExcel, toast } from '../utils/helpers.js';
+import { formatCurrency, formatCompact, vehicleIcon, exportCSV, exportExcel, exportPDF, toast } from '../utils/helpers.js';
 
 export function renderAnalytics() {
   const app = document.getElementById('app');
@@ -135,7 +135,8 @@ export function renderAnalytics() {
   </div>`;
 
   app.innerHTML = renderShell('Analytics & Reports', 'Data-driven fleet insights',
-    `<button class="btn btn-primary" id="export-full"><span class="material-symbols-rounded">table_view</span> Full Report Excel</button>`, body);
+    `<button class="btn btn-primary" id="export-full"><span class="material-symbols-rounded">table_view</span> Full Report Excel</button>
+     <button class="btn btn-ghost" id="export-pdf" style="margin-left:8px"><span class="material-symbols-rounded">picture_as_pdf</span> Export PDF</button>`, body);
   bindShellEvents();
 
   document.getElementById('export-analytics')?.addEventListener('click', () => {
@@ -143,9 +144,91 @@ export function renderAnalytics() {
     toast('Report exported', 'success');
   });
 
+  const buildFullReport = () => {
+    const financialSummary = [
+      { Category: 'Revenue', Amount: totalRevenue },
+      { Category: 'Fuel Cost', Amount: totalFuel },
+      { Category: 'Maintenance Cost', Amount: totalMaint },
+      { Category: 'Other Expenses', Amount: totalExpense },
+      { Category: 'Net Profit', Amount: netProfit },
+      { Category: 'Profit Margin %', Amount: totalRevenue > 0 ? ((netProfit / totalRevenue) * 100).toFixed(1) + '%' : '0%' },
+    ];
+    const vehicleROI = vehicleMetrics.map(v => ({
+      Vehicle: v.name, Plate: v.licensePlate, Type: v.type, Status: v.status,
+      Trips: v.tripCount, 'Distance (km)': v.totalKm, 'Fuel (L)': v.totalLiters,
+      'Fuel Eff (km/L)': v.fuelEff, 'Cost/km (₹)': v.costPerKm,
+      'Revenue (₹)': v.revenue, 'Ops Cost (₹)': v.opsCost, 'ROI %': v.roi
+    }));
+    const tripsData = store.trips.map(t => {
+      const veh = store.getVehicle(t.vehicleId);
+      const drv = store.getDriver(t.driverId);
+      return {
+        Status: t.status, Vehicle: veh?.name || '—', Driver: drv?.name || '—',
+        Origin: t.origin || '', Destination: t.destination || '',
+        'Start Odo': t.startOdometer || '', 'End Odo': t.endOdometer || '',
+        'Cargo (kg)': t.cargoWeight || '', 'Revenue (₹)': t.revenue || 0,
+        Date: t.createdAt ? new Date(t.createdAt).toLocaleDateString('en-IN') : ''
+      };
+    });
+    const fuelData = store.fuelLogs.map(f => {
+      const veh = store.getVehicle(f.vehicleId);
+      return {
+        Vehicle: veh?.name || '—', Date: f.date || '', 'Liters': f.liters,
+        'Cost/L (₹)': f.costPerLiter, 'Total (₹)': f.totalCost, Station: f.station || ''
+      };
+    });
+    const maintData = store.maintenance.map(m => {
+      const veh = store.getVehicle(m.vehicleId);
+      return {
+        Vehicle: veh?.name || '—', Type: m.type || '', Description: m.description || '',
+        'Cost (₹)': m.cost, Status: m.status || '', Date: m.date || ''
+      };
+    });
+    const expenseData = store.expenses.map(e => {
+      const veh = store.getVehicle(e.vehicleId);
+      return {
+        Vehicle: veh?.name || '—', Category: e.category || '', Description: e.description || '',
+        'Amount (₹)': e.amount, Date: e.date || ''
+      };
+    });
+    const driverData = store.drivers.map(d => ({
+      Name: d.name, Phone: d.phone || '', License: d.licenseNumber || '',
+      Category: d.licenseCategory || '', Expiry: d.licenseExpiry || '',
+      Status: d.status, 'Trips Done': d.tripsCompleted, 'Trips Cancelled': d.tripsCancelled,
+      'Safety Score': d.safetyScore
+    }));
+    return { financialSummary, vehicleROI, tripsData, fuelData, maintData, expenseData, driverData };
+  };
+
   document.getElementById('export-full')?.addEventListener('click', () => {
-    const data = [{ Type: 'Revenue', Amount: totalRevenue }, { Type: 'Fuel Cost', Amount: totalFuel }, { Type: 'Maintenance', Amount: totalMaint }, { Type: 'Other Expenses', Amount: totalExpense }, { Type: 'Net Profit', Amount: netProfit }];
-    exportExcel(data, 'fleetflow_financial_summary.xlsx');
-    toast('Financial summary exported as Excel', 'success');
+    const r = buildFullReport();
+    exportExcel({
+      'Financial Summary': r.financialSummary,
+      'Vehicle ROI': r.vehicleROI,
+      'All Trips': r.tripsData,
+      'Fuel Logs': r.fuelData,
+      'Maintenance': r.maintData,
+      'Expenses': r.expenseData,
+      'Drivers': r.driverData,
+    }, 'fleetflow_full_report.xlsx');
+    toast('Full Excel report exported (7 sheets)', 'success');
+  });
+
+  document.getElementById('export-pdf')?.addEventListener('click', () => {
+    const r = buildFullReport();
+    exportPDF({
+      title: 'FleetFlow — Full Analytics Report',
+      generated: new Date().toLocaleString('en-IN'),
+      sections: [
+        { heading: '💰 Financial Summary', rows: r.financialSummary },
+        { heading: '🚛 Vehicle Performance & ROI', rows: r.vehicleROI },
+        { heading: '🗺️ All Trips', rows: r.tripsData },
+        { heading: '⛽ Fuel Logs', rows: r.fuelData },
+        { heading: '🔧 Maintenance Records', rows: r.maintData },
+        { heading: '💸 Expenses', rows: r.expenseData },
+        { heading: '👤 Drivers', rows: r.driverData },
+      ]
+    });
+    toast('PDF report opened — use Save as PDF in print dialog', 'success');
   });
 }
