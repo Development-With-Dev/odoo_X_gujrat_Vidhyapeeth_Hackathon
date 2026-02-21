@@ -2,13 +2,13 @@ import { store } from '../store/data.js';
 import { renderShell, bindShellEvents } from '../components/shell.js';
 import { pillHTML, formatDate, toast } from '../utils/helpers.js';
 
-let driverFilter = 'All';
+let driverFilters = new Set();
 const today = () => new Date().toISOString().slice(0, 10);
 
 export function renderDrivers() {
   const app = document.getElementById('app');
   let drivers = store.drivers;
-  if (driverFilter !== 'All') drivers = drivers.filter(d => d.status === driverFilter);
+  if (driverFilters.size) drivers = drivers.filter(d => driverFilters.has(d.status));
   const avgSafety = drivers.length ? (drivers.reduce((s, d) => s + d.safetyScore, 0) / drivers.length).toFixed(0) : 0;
   const expiredCount = store.drivers.filter(d => d.licenseExpiry < today()).length;
   const statuses = ['All', 'On Duty', 'On Trip', 'Off Duty', 'Suspended'];
@@ -22,7 +22,7 @@ export function renderDrivers() {
     <div class="kpi-card"><div class="kpi-icon red"><span class="material-symbols-rounded">gpp_bad</span></div><div class="kpi-value" style="color:${expiredCount ? 'var(--c-danger)' : 'var(--c-success)'}">${expiredCount}</div><div class="kpi-label">Expired Licenses</div></div>
     <div class="kpi-card"><div class="kpi-icon purple"><span class="material-symbols-rounded">emoji_events</span></div><div class="kpi-value">${store.drivers.reduce((s, d) => s + d.tripsCompleted, 0)}</div><div class="kpi-label">Total Trips Done</div></div>
   </div>
-  <div class="filter-bar"><div class="filter-chips" id="df">${statuses.map(s => `<button class="chip ${driverFilter === s ? 'active' : ''}" data-s="${s}">${s === 'All' ? 'All Drivers' : s}</button>`).join('')}</div></div>
+  <div class="filter-bar"><div class="filter-chips" id="df">${statuses.map(s => `<button class="chip ${s === 'All' ? (!driverFilters.size ? 'active' : '') : (driverFilters.has(s) ? 'active' : '')}" data-s="${s}">${s === 'All' ? 'All Drivers' : s}</button>`).join('')}</div></div>
   ${expiredDrivers.length ? `<div class="card mb-6" style="border-color:rgba(239,68,68,.3)"><div class="card-header" style="background:var(--c-danger-bg)"><span class="card-title flex items-center gap-2" style="color:var(--c-danger)"><span class="material-symbols-rounded">warning</span>Expired License Alerts</span></div><div class="card-body">${expiredDrivers.map(d => `<div class="flex items-center gap-3" style="padding:4px 0"><div class="driver-avatar">${d.name[0]}</div><span style="font-weight:600;flex:1">${d.name}</span><span class="text-sm" style="color:var(--c-danger)">Expired: ${formatDate(d.licenseExpiry)}</span></div>`).join('')}</div></div>` : ''}
   <div class="card"><div class="data-table-wrap"><table class="data-table"><thead><tr><th>Driver</th><th>Phone</th><th>License</th><th>Categories</th><th>Expiry</th><th>Safety</th><th>Trips</th><th>Status</th><th>Actions</th></tr></thead><tbody>
   ${drivers.map(d => {
@@ -40,7 +40,7 @@ export function renderDrivers() {
 
   app.innerHTML = renderShell('Driver Profiles & Safety', 'Compliance, performance, and status management', `<button class="btn btn-primary" id="adb"><span class="material-symbols-rounded">person_add</span> Add Driver</button>`, body);
   bindShellEvents();
-  document.querySelectorAll('#df .chip').forEach(c => c.addEventListener('click', () => { driverFilter = c.dataset.s; renderDrivers(); }));
+  document.querySelectorAll('#df .chip').forEach(c => c.addEventListener('click', () => { const val = c.dataset.s; if (val === 'All') { driverFilters.clear(); } else { if (driverFilters.has(val)) driverFilters.delete(val); else driverFilters.add(val); } renderDrivers(); }));
   document.querySelectorAll('[data-st]').forEach(s => s.addEventListener('change', async () => { const r = await store.updateDriver(s.dataset.st, { status: s.value }); if (r?.success) { toast(`Status → ${s.value}`, 'info'); renderDrivers(); } else toast(r?.error || 'Failed', 'error'); }));
   document.querySelectorAll('[data-ed]').forEach(b => b.addEventListener('click', () => showDriverModal(b.dataset.ed)));
   document.getElementById('adb')?.addEventListener('click', () => showDriverModal());

@@ -3,16 +3,16 @@ import { renderShell, bindShellEvents } from '../components/shell.js';
 import { pillHTML, formatCurrency, vehicleIcon, toast, debounce } from '../utils/helpers.js';
 import { router } from '../utils/router.js';
 
-let filterType = 'All';
-let filterStatus = 'All';
+let filterTypes = new Set();
+let filterStatuses = new Set();
 let searchQuery = '';
 
 export function renderVehicles() {
   const app = document.getElementById('app');
 
   let vehicles = store.vehicles;
-  if (filterType !== 'All') vehicles = vehicles.filter(v => v.type === filterType);
-  if (filterStatus !== 'All') vehicles = vehicles.filter(v => v.status === filterStatus);
+  if (filterTypes.size) vehicles = vehicles.filter(v => filterTypes.has(v.type));
+  if (filterStatuses.size) vehicles = vehicles.filter(v => filterStatuses.has(v.status));
   if (searchQuery) {
     const q = searchQuery.toLowerCase();
     vehicles = vehicles.filter(v =>
@@ -32,10 +32,10 @@ export function renderVehicles() {
         <input class="form-input" id="vehicle-search" placeholder="Search by name, plate, model..." value="${searchQuery}" />
       </div>
       <div class="filter-chips" id="vehicle-type-filter">
-        ${types.map(t => `<button class="chip ${filterType === t ? 'active' : ''}" data-type="${t}">${t === 'All' ? 'All Types' : t}</button>`).join('')}
+        ${types.map(t => `<button class="chip ${t === 'All' ? (!filterTypes.size ? 'active' : '') : (filterTypes.has(t) ? 'active' : '')}" data-type="${t}">${t === 'All' ? 'All Types' : t}</button>`).join('')}
       </div>
       <div class="filter-chips" id="vehicle-status-filter">
-        ${statuses.map(s => `<button class="chip ${filterStatus === s ? 'active' : ''}" data-status="${s}">${s === 'All' ? 'All Status' : s}</button>`).join('')}
+        ${statuses.map(s => `<button class="chip ${s === 'All' ? (!filterStatuses.size ? 'active' : '') : (filterStatuses.has(s) ? 'active' : '')}" data-status="${s}">${s === 'All' ? 'All Status' : s}</button>`).join('')}
       </div>
     </div>
 
@@ -120,14 +120,16 @@ function bindVehicleEvents() {
 
   document.querySelectorAll('#vehicle-type-filter .chip').forEach(chip => {
     chip.addEventListener('click', () => {
-      filterType = chip.dataset.type;
+      const val = chip.dataset.type;
+      if (val === 'All') { filterTypes.clear(); } else { if (filterTypes.has(val)) filterTypes.delete(val); else filterTypes.add(val); }
       renderVehicles();
     });
   });
 
   document.querySelectorAll('#vehicle-status-filter .chip').forEach(chip => {
     chip.addEventListener('click', () => {
-      filterStatus = chip.dataset.status;
+      const val = chip.dataset.status;
+      if (val === 'All') { filterStatuses.clear(); } else { if (filterStatuses.has(val)) filterStatuses.delete(val); else filterStatuses.add(val); }
       renderVehicles();
     });
   });

@@ -3,12 +3,17 @@ import { renderShell, bindShellEvents } from '../components/shell.js';
 import { pillHTML, formatCurrency, formatDate, vehicleIcon, toast, exportCSV } from '../utils/helpers.js';
 
 let activeTab = 'fuel';
+let expVehicleFilters = new Set();
 
 export function renderExpenses() {
   const app = document.getElementById('app');
 
-  const fuelLogs = store.fuelLogs.sort((a, b) => new Date(b.date) - new Date(a.date));
-  const expenses = store.expenses.sort((a, b) => new Date(b.date) - new Date(a.date));
+  let fuelLogs = store.fuelLogs.sort((a, b) => new Date(b.date) - new Date(a.date));
+  let expenses = store.expenses.sort((a, b) => new Date(b.date) - new Date(a.date));
+  if (expVehicleFilters.size) {
+    fuelLogs = fuelLogs.filter(f => expVehicleFilters.has(f.vehicleId));
+    expenses = expenses.filter(e => expVehicleFilters.has(e.vehicleId));
+  }
   const totalFuel = fuelLogs.reduce((s, f) => s + f.totalCost, 0);
   const totalExpenses = expenses.reduce((s, e) => s + e.amount, 0);
   const totalMaint = store.maintenance.reduce((s, m) => s + m.cost, 0);
@@ -92,6 +97,10 @@ export function renderExpenses() {
         <button class="chip ${activeTab === 'fuel' ? 'active' : ''}" id="tab-fuel">⛽ Fuel Logs</button>
         <button class="chip ${activeTab === 'expenses' ? 'active' : ''}" id="tab-expenses">💸 Other Expenses</button>
       </div>
+      <div class="filter-chips" id="exp-vehicle-filter">
+        <button class="chip ${!expVehicleFilters.size ? 'active' : ''}" data-vid="All">All Vehicles</button>
+        ${store.vehicles.filter(v => v.status !== 'Retired').map(v => `<button class="chip ${expVehicleFilters.has(v.id) ? 'active' : ''}" data-vid="${v.id}">${v.name}</button>`).join('')}
+      </div>
     </div>
 
     ${activeTab === 'fuel' ? `
@@ -169,6 +178,14 @@ export function renderExpenses() {
 
   document.getElementById('tab-fuel')?.addEventListener('click', () => { activeTab = 'fuel'; renderExpenses(); });
   document.getElementById('tab-expenses')?.addEventListener('click', () => { activeTab = 'expenses'; renderExpenses(); });
+
+  document.querySelectorAll('#exp-vehicle-filter .chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const val = chip.dataset.vid;
+      if (val === 'All') { expVehicleFilters.clear(); } else { if (expVehicleFilters.has(val)) expVehicleFilters.delete(val); else expVehicleFilters.add(val); }
+      renderExpenses();
+    });
+  });
 
   document.getElementById('add-fuel-btn')?.addEventListener('click', () => showFuelModal());
   document.getElementById('add-expense-btn')?.addEventListener('click', () => showExpenseModal());

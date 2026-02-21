@@ -2,11 +2,19 @@ import { store } from '../store/data.js';
 import { renderShell, bindShellEvents } from '../components/shell.js';
 import { pillHTML, formatCurrency, formatDate, vehicleIcon, toast } from '../utils/helpers.js';
 
+let maintStatusFilters = new Set();
+let maintTypeFilters = new Set();
+
 export function renderMaintenance() {
   const app = document.getElementById('app');
-  const records = store.maintenance.sort((a, b) => new Date(b.date) - new Date(a.date));
+  let records = store.maintenance.sort((a, b) => new Date(b.date) - new Date(a.date));
+  if (maintStatusFilters.size) records = records.filter(r => maintStatusFilters.has(r.status));
+  if (maintTypeFilters.size) records = records.filter(r => maintTypeFilters.has(r.type));
   const totalCost = records.reduce((s, m) => s + m.cost, 0);
   const inProgress = records.filter(r => r.status === 'In Progress').length;
+
+  const statuses = ['All', 'In Progress', 'Completed'];
+  const serviceTypes = ['All', ...new Set(store.maintenance.map(m => m.type))];
 
   const bodyContent = `
     <div class="kpi-grid" style="grid-template-columns: repeat(3, 1fr)">
@@ -25,6 +33,15 @@ export function renderMaintenance() {
         <div class="kpi-icon purple"><span class="material-symbols-rounded">payments</span></div>
         <div class="kpi-value">${formatCurrency(totalCost)}</div>
         <div class="kpi-label">Total Maintenance Spend</div>
+      </div>
+    </div>
+
+    <div class="filter-bar">
+      <div class="filter-chips" id="maint-status-filter">
+        ${statuses.map(s => `<button class="chip ${s === 'All' ? (!maintStatusFilters.size ? 'active' : '') : (maintStatusFilters.has(s) ? 'active' : '')}" data-status="${s}">${s === 'All' ? 'All Status' : s}</button>`).join('')}
+      </div>
+      <div class="filter-chips" id="maint-type-filter">
+        ${serviceTypes.map(t => `<button class="chip ${t === 'All' ? (!maintTypeFilters.size ? 'active' : '') : (maintTypeFilters.has(t) ? 'active' : '')}" data-type="${t}">${t === 'All' ? 'All Types' : t}</button>`).join('')}
       </div>
     </div>
 
@@ -100,6 +117,22 @@ export function renderMaintenance() {
     bodyContent
   );
   bindShellEvents();
+
+  document.querySelectorAll('#maint-status-filter .chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const val = chip.dataset.status;
+      if (val === 'All') { maintStatusFilters.clear(); } else { if (maintStatusFilters.has(val)) maintStatusFilters.delete(val); else maintStatusFilters.add(val); }
+      renderMaintenance();
+    });
+  });
+
+  document.querySelectorAll('#maint-type-filter .chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const val = chip.dataset.type;
+      if (val === 'All') { maintTypeFilters.clear(); } else { if (maintTypeFilters.has(val)) maintTypeFilters.delete(val); else maintTypeFilters.add(val); }
+      renderMaintenance();
+    });
+  });
 
   document.querySelectorAll('[data-complete-maint]').forEach(btn => {
     btn.addEventListener('click', async () => {

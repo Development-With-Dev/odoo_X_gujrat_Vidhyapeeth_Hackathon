@@ -2,20 +2,20 @@ import { store } from '../store/data.js';
 import { renderShell, bindShellEvents } from '../components/shell.js';
 import { pillHTML, formatDate, formatDateTime, formatCurrency, vehicleIcon, toast } from '../utils/helpers.js';
 
-let tripFilter = 'All';
+let tripFilters = new Set();
 
 export function renderTrips() {
   const app = document.getElementById('app');
 
   let trips = store.trips.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-  if (tripFilter !== 'All') trips = trips.filter(t => t.status === tripFilter);
+  if (tripFilters.size) trips = trips.filter(t => tripFilters.has(t.status));
 
   const statuses = ['All', 'Draft', 'Dispatched', 'Completed', 'Cancelled'];
 
   const bodyContent = `
     <div class="filter-bar">
       <div class="filter-chips" id="trip-status-filter">
-        ${statuses.map(s => `<button class="chip ${tripFilter === s ? 'active' : ''}" data-status="${s}">${s === 'All' ? 'All Trips' : s}</button>`).join('')}
+        ${statuses.map(s => `<button class="chip ${s === 'All' ? (!tripFilters.size ? 'active' : '') : (tripFilters.has(s) ? 'active' : '')}" data-status="${s}">${s === 'All' ? 'All Trips' : s}</button>`).join('')}
       </div>
       <div style="margin-left:auto;font-size:var(--fs-sm);color:var(--text-muted)">${trips.length} trip${trips.length !== 1 ? 's' : ''}</div>
     </div>
@@ -133,7 +133,8 @@ export function renderTrips() {
 function bindTripEvents() {
   document.querySelectorAll('#trip-status-filter .chip').forEach(chip => {
     chip.addEventListener('click', () => {
-      tripFilter = chip.dataset.status;
+      const val = chip.dataset.status;
+      if (val === 'All') { tripFilters.clear(); } else { if (tripFilters.has(val)) tripFilters.delete(val); else tripFilters.add(val); }
       renderTrips();
     });
   });

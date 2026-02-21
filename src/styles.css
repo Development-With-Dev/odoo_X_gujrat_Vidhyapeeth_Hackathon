@@ -857,6 +857,7 @@ button {
 .filter-chips {
   display: flex;
   gap: var(--sp-2);
+  flex-wrap: wrap;
 }
 
 .chip {
