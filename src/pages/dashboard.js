@@ -1,6 +1,6 @@
 import { store } from '../store/data.js';
 import { renderShell, bindShellEvents } from '../components/shell.js';
-import { pillHTML, formatCurrency, formatDate, vehicleIcon } from '../utils/helpers.js';
+import { pillHTML, formatCurrency, formatDate, vehicleIcon, animateCounters } from '../utils/helpers.js';
 import { router } from '../utils/router.js';
 
 /* ─── Multi-select filter state (Sets) ──────────────────────── */
@@ -67,7 +67,7 @@ export async function renderDashboard() {
     <div class="kpi-grid">
       <div class="kpi-card animate-slide-up stagger-1">
         <div class="kpi-icon blue"><span class="material-symbols-rounded">local_shipping</span></div>
-        <div class="kpi-value">${kpis.activeFleet}</div>
+        <div class="kpi-value" data-count="${kpis.activeFleet}">0</div>
         <div class="kpi-label">Active Fleet (On Trip)</div>
         <div class="kpi-sub">
           <span style="color:var(--c-success)">● ${kpis.available} available</span>
@@ -77,7 +77,7 @@ export async function renderDashboard() {
 
       <div class="kpi-card animate-slide-up stagger-2">
         <div class="kpi-icon amber"><span class="material-symbols-rounded">build</span></div>
-        <div class="kpi-value">${kpis.inShop}</div>
+        <div class="kpi-value" data-count="${kpis.inShop}">0</div>
         <div class="kpi-label">Maintenance Alerts</div>
         <div class="kpi-sub">
           ${kpis.inShop > 0 ? '<span style="color:var(--c-warning)">⚠ Vehicles in shop</span>' : '<span style="color:var(--c-success)">All clear</span>'}
@@ -86,7 +86,7 @@ export async function renderDashboard() {
 
       <div class="kpi-card animate-slide-up stagger-3">
         <div class="kpi-icon green"><span class="material-symbols-rounded">speed</span></div>
-        <div class="kpi-value">${kpis.utilizationRate}%</div>
+        <div class="kpi-value" data-count="${kpis.utilizationRate}" data-suffix="%" data-decimals="1">0%</div>
         <div class="kpi-label">Utilization Rate</div>
         <div class="kpi-sub">
           <div style="flex:1;height:6px;background:var(--bg-elevated);border-radius:var(--radius-full);overflow:hidden">
@@ -97,7 +97,7 @@ export async function renderDashboard() {
 
       <div class="kpi-card animate-slide-up stagger-4">
         <div class="kpi-icon purple"><span class="material-symbols-rounded">inventory_2</span></div>
-        <div class="kpi-value">${draftTrips.length}</div>
+        <div class="kpi-value" data-count="${draftTrips.length}">0</div>
         <div class="kpi-label">Pending Cargo (Drafts)</div>
         <div class="kpi-sub">
           <span>${kpis.activeDrivers} of ${kpis.totalDrivers} drivers active</span>
@@ -108,17 +108,17 @@ export async function renderDashboard() {
     <div class="kpi-grid" style="grid-template-columns: repeat(3, 1fr)">
       <div class="kpi-card">
         <div class="kpi-icon green"><span class="material-symbols-rounded">trending_up</span></div>
-        <div class="kpi-value" style="color:var(--c-success)">${formatCurrency(totalRevenue)}</div>
+        <div class="kpi-value" style="color:var(--c-success)" data-count="${totalRevenue}" data-prefix="₹">₹0</div>
         <div class="kpi-label">Total Revenue</div>
       </div>
       <div class="kpi-card">
         <div class="kpi-icon red"><span class="material-symbols-rounded">local_gas_station</span></div>
-        <div class="kpi-value" style="color:var(--c-warning)">${formatCurrency(totalFuelCost)}</div>
+        <div class="kpi-value" style="color:var(--c-warning)" data-count="${totalFuelCost}" data-prefix="₹">₹0</div>
         <div class="kpi-label">Fuel Expenses</div>
       </div>
       <div class="kpi-card">
         <div class="kpi-icon amber"><span class="material-symbols-rounded">handyman</span></div>
-        <div class="kpi-value" style="color:var(--c-danger)">${formatCurrency(totalMaintCost)}</div>
+        <div class="kpi-value" style="color:var(--c-danger)" data-count="${totalMaintCost}" data-prefix="₹">₹0</div>
         <div class="kpi-label">Maintenance Costs</div>
       </div>
     </div>
@@ -316,6 +316,7 @@ export async function renderDashboard() {
     bodyContent
   );
   bindShellEvents();
+  animateCounters();
 
   /* ─── Event Bindings ─── */
   document.getElementById('refresh-dashboard-btn')?.addEventListener('click', async () => {

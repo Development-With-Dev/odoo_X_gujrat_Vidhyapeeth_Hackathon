@@ -471,8 +471,9 @@ function bindRegisterEvents() {
     const role = document.getElementById('reg-role').value;
     const result = await store.register(username, pass, name, role, companyName);
     if (result.success) {
-      toast('Account created! Welcome, ' + result.user.name + '!', 'success');
-      router.navigate('/dashboard');
+      store.logout();
+      toast('Account created successfully! Please log in.', 'success');
+      router.navigate('/login');
     } else {
       const err = document.getElementById('register-error');
       err.style.display = 'flex';

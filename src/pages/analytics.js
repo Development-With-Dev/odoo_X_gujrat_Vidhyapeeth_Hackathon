@@ -1,6 +1,6 @@
 import { store } from '../store/data.js';
 import { renderShell, bindShellEvents } from '../components/shell.js';
-import { formatCurrency, formatCompact, vehicleIcon, exportCSV, exportExcel, exportPDF, toast } from '../utils/helpers.js';
+import { formatCurrency, formatCompact, vehicleIcon, exportCSV, exportExcel, exportPDF, toast, animateCounters } from '../utils/helpers.js';
 import { Chart, registerables } from 'chart.js';
 
 Chart.register(...registerables);
@@ -172,13 +172,13 @@ export function renderAnalytics() {
   const body = `
   <div class="kpi-grid">
     <div class="kpi-card animate-slide-up stagger-1"><div class="kpi-icon green"><span class="material-symbols-rounded">trending_up</span></div>
-      <div class="kpi-value" style="color:var(--c-success)" title="${formatCurrency(totalRevenue)}">${formatCompact(totalRevenue)}</div><div class="kpi-label">Total Revenue</div></div>
+      <div class="kpi-value" style="color:var(--c-success)" title="${formatCurrency(totalRevenue)}" data-count="${totalRevenue}" data-prefix="₹">₹0</div><div class="kpi-label">Total Revenue</div></div>
     <div class="kpi-card animate-slide-up stagger-2"><div class="kpi-icon red"><span class="material-symbols-rounded">money_off</span></div>
-      <div class="kpi-value" style="color:var(--c-danger)" title="${formatCurrency(totalFuel + totalMaint + totalExpense)}">${formatCompact(totalFuel + totalMaint + totalExpense)}</div><div class="kpi-label">Total Costs</div></div>
+      <div class="kpi-value" style="color:var(--c-danger)" title="${formatCurrency(totalFuel + totalMaint + totalExpense)}" data-count="${totalFuel + totalMaint + totalExpense}" data-prefix="₹">₹0</div><div class="kpi-label">Total Costs</div></div>
     <div class="kpi-card animate-slide-up stagger-3"><div class="kpi-icon ${netProfit >= 0 ? 'green' : 'red'}"><span class="material-symbols-rounded">${netProfit >= 0 ? 'savings' : 'warning'}</span></div>
-      <div class="kpi-value" style="color:${netProfit >= 0 ? 'var(--c-success)' : 'var(--c-danger)'}" title="${formatCurrency(netProfit)}">${formatCompact(netProfit)}</div><div class="kpi-label">Net Profit</div></div>
+      <div class="kpi-value" style="color:${netProfit >= 0 ? 'var(--c-success)' : 'var(--c-danger)'}" title="${formatCurrency(netProfit)}" data-count="${Math.abs(netProfit)}" data-prefix="${netProfit < 0 ? '-₹' : '₹'}">${netProfit < 0 ? '-' : ''}₹0</div><div class="kpi-label">Net Profit</div></div>
     <div class="kpi-card animate-slide-up stagger-4"><div class="kpi-icon blue"><span class="material-symbols-rounded">bar_chart</span></div>
-      <div class="kpi-value">${completedTrips.length}</div><div class="kpi-label">Completed Trips</div></div>
+      <div class="kpi-value" data-count="${completedTrips.length}">0</div><div class="kpi-label">Completed Trips</div></div>
   </div>
 
   <!-- CHART 1: Revenue & Cost Trend -->
@@ -272,6 +272,7 @@ export function renderAnalytics() {
   app.innerHTML = renderShell('Analytics & Reports', 'Data-driven fleet insights',
     `<button class="btn btn-primary" id="exp-hdr"><span class="material-symbols-rounded">download</span> Quick PDF</button>`, body);
   bindShellEvents();
+  animateCounters();
 
   /* ═══════════════════════════════════════════════════════════
      CHART 1 — REVENUE & COST TREND (Dual Line + Area)
