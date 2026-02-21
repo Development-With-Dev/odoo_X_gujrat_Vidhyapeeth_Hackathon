@@ -3,8 +3,8 @@ import { router } from '../utils/router.js';
 import { toast } from '../utils/helpers.js';
 
 export function renderLogin() {
-    const app = document.getElementById('app');
-    app.innerHTML = `
+  const app = document.getElementById('app');
+  app.innerHTML = `
     <div class="login-page login-split">
       <div class="login-hero">
         <div class="login-hero-content">
@@ -45,8 +45,8 @@ export function renderLogin() {
           <p class="login-register-desc">Make a new account for your business</p>
           <form class="login-form" id="register-form">
             <div class="form-group">
-              <label class="form-label" for="reg-email">Email</label>
-              <input class="form-input" type="text" id="reg-email" placeholder="your@email.com" required minlength="3" autocomplete="email" />
+              <label class="form-label" for="reg-email">Email <span style="font-size:var(--fs-xs);color:var(--text-muted);font-weight:400">(Gmail only)</span></label>
+              <input class="form-input" type="email" id="reg-email" placeholder="yourname@gmail.com" required pattern="[a-zA-Z0-9._%+\-]+@gmail\.com" title="Only @gmail.com addresses are accepted" autocomplete="email" />
             </div>
             <div class="form-group">
               <label class="form-label" for="reg-password">Password</label>
@@ -82,62 +82,69 @@ export function renderLogin() {
       </div>
     </div>
   `;
-    bindAuthEvents();
+  bindAuthEvents();
 }
 
 function bindAuthEvents() {
-    document.getElementById('forgot-password')?.addEventListener('click', (e) => {
-        e.preventDefault();
-        toast('Contact your administrator to reset your password.', 'info');
-    });
+  document.getElementById('forgot-password')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    toast('Contact your administrator to reset your password.', 'info');
+  });
 
-    document.getElementById('login-form')?.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const btn = document.getElementById('login-btn');
-        btn.disabled = true;
-        btn.innerHTML = '<span class="material-symbols-rounded">hourglass_empty</span> Signing in...';
-        const username = document.getElementById('login-username').value.trim();
-        const password = document.getElementById('login-password').value;
-        const result = await store.login(username, password);
-        if (result.success) {
-            toast('Welcome back, ' + result.user.name + '!', 'success');
-            router.navigate('/dashboard');
-        } else {
-            const err = document.getElementById('login-error');
-            err.style.display = 'flex';
-            err.innerHTML = `<span class="material-symbols-rounded" style="font-size:14px">error</span> ${result.error}`;
-            btn.disabled = false;
-            btn.innerHTML = '<span class="material-symbols-rounded">login</span> Login';
-        }
-    });
+  document.getElementById('login-form')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('login-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="material-symbols-rounded">hourglass_empty</span> Signing in...';
+    const username = document.getElementById('login-username').value.trim();
+    const password = document.getElementById('login-password').value;
+    const result = await store.login(username, password);
+    if (result.success) {
+      toast('Welcome back, ' + result.user.name + '!', 'success');
+      router.navigate('/dashboard');
+    } else {
+      const err = document.getElementById('login-error');
+      err.style.display = 'flex';
+      err.innerHTML = `<span class="material-symbols-rounded" style="font-size:14px">error</span> ${result.error}`;
+      btn.disabled = false;
+      btn.innerHTML = '<span class="material-symbols-rounded">login</span> Login';
+    }
+  });
 
-    document.getElementById('register-form')?.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const pass = document.getElementById('reg-password').value;
-        const confirm = document.getElementById('reg-confirm').value;
-        if (pass !== confirm) {
-            const err = document.getElementById('register-error');
-            err.style.display = 'flex';
-            err.innerHTML = `<span class="material-symbols-rounded" style="font-size:14px">error</span> Passwords do not match`;
-            return;
-        }
-        const btn = document.getElementById('register-btn');
-        btn.disabled = true;
-        btn.innerHTML = '<span class="material-symbols-rounded">hourglass_empty</span> Creating account...';
-        const username = document.getElementById('reg-email').value.trim();
-        const name = document.getElementById('reg-name').value.trim();
-        const companyName = document.getElementById('reg-company').value.trim();
-        const role = document.getElementById('reg-role').value;
-        const result = await store.register(username, pass, name, role, companyName);
-        if (result.success) {
-            toast('Account created! Welcome, ' + result.user.name + '!', 'success');
-            router.navigate('/dashboard');
-        } else {
-            const err = document.getElementById('register-error');
-            err.style.display = 'flex';
-            err.innerHTML = `<span class="material-symbols-rounded" style="font-size:14px">error</span> ${result.error}`;
-            btn.disabled = false;
-            btn.innerHTML = '<span class="material-symbols-rounded">person_add</span> Register';
-        }
-    });
+  document.getElementById('register-form')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const emailVal = document.getElementById('reg-email').value.trim();
+    if (!emailVal.toLowerCase().endsWith('@gmail.com')) {
+      const err = document.getElementById('register-error');
+      err.style.display = 'flex';
+      err.innerHTML = `<span class="material-symbols-rounded" style="font-size:14px">error</span> Only @gmail.com email addresses are allowed`;
+      return;
+    }
+    const pass = document.getElementById('reg-password').value;
+    const confirm = document.getElementById('reg-confirm').value;
+    if (pass !== confirm) {
+      const err = document.getElementById('register-error');
+      err.style.display = 'flex';
+      err.innerHTML = `<span class="material-symbols-rounded" style="font-size:14px">error</span> Passwords do not match`;
+      return;
+    }
+    const btn = document.getElementById('register-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="material-symbols-rounded">hourglass_empty</span> Creating account...';
+    const username = document.getElementById('reg-email').value.trim();
+    const name = document.getElementById('reg-name').value.trim();
+    const companyName = document.getElementById('reg-company').value.trim();
+    const role = document.getElementById('reg-role').value;
+    const result = await store.register(username, pass, name, role, companyName);
+    if (result.success) {
+      toast('Account created! Welcome, ' + result.user.name + '!', 'success');
+      router.navigate('/dashboard');
+    } else {
+      const err = document.getElementById('register-error');
+      err.style.display = 'flex';
+      err.innerHTML = `<span class="material-symbols-rounded" style="font-size:14px">error</span> ${result.error}`;
+      btn.disabled = false;
+      btn.innerHTML = '<span class="material-symbols-rounded">person_add</span> Register';
+    }
+  });
 }
