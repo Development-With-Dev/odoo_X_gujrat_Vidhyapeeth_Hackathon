@@ -20,7 +20,7 @@ const crosshairPlugin = {
       ctx.moveTo(x, topY);
       ctx.lineTo(x, bottomY);
       ctx.lineWidth = 1;
-      ctx.strokeStyle = 'rgba(113,75,103,0.4)';
+      ctx.strokeStyle = 'rgba(76,110,245,0.4)';
       ctx.stroke();
       ctx.restore();
     }
@@ -39,12 +39,12 @@ const centerTextPlugin = {
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.font = '800 22px Inter, sans-serif';
-    ctx.fillStyle = '#e9ecef';
+    ctx.fillStyle = '#E8ECF4';
     const cx = width / 2;
     const cy = height / 2 - 6;
     ctx.fillText('₹' + (total >= 100000 ? (total / 100000).toFixed(1) + 'L' : total >= 1000 ? (total / 1000).toFixed(0) + 'K' : total), cx, cy);
     ctx.font = '500 11px Inter, sans-serif';
-    ctx.fillStyle = '#6c757d';
+    ctx.fillStyle = '#5C6478';
     ctx.fillText('Total Cost', cx, cy + 22);
     ctx.restore();
   }
@@ -52,17 +52,17 @@ const centerTextPlugin = {
 
 Chart.register(crosshairPlugin, centerTextPlugin);
 
-/* ─── Color Palette (Odoo Dark Theme) ────────────────────── */
+/* ─── Color Palette (Premium Dark Theme) ─────────────────── */
 const C = {
-  primary: '#714B67', primaryLight: '#875A7B', primaryGlow: 'rgba(113,75,103,0.35)',
-  success: '#28a745', successLight: '#3bc55e', successGlow: 'rgba(40,167,69,0.25)',
-  danger: '#dc3545', dangerLight: '#e4606d', dangerGlow: 'rgba(220,53,69,0.25)',
-  warning: '#e6a817', warningLight: '#f0c040',
-  info: '#17a2b8', infoLight: '#3dbfd4',
-  purple: '#714B67', purpleLight: '#875A7B',
-  cyan: '#17a2b8', rose: '#dc3545', emerald: '#28a745',
-  text: '#e9ecef', textSec: '#adb5bd', textMuted: '#6c757d',
-  grid: 'rgba(255,255,255,0.05)', bgCard: '#2c3036',
+  primary: '#4C6EF5', primaryLight: '#748FFC', primaryGlow: 'rgba(76,110,245,0.35)',
+  success: '#34D399', successLight: '#6EE7B7', successGlow: 'rgba(52,211,153,0.25)',
+  danger: '#F87171', dangerLight: '#FCA5A5', dangerGlow: 'rgba(248,113,113,0.25)',
+  warning: '#FBBF24', warningLight: '#FDE68A',
+  info: '#38BDF8', infoLight: '#7DD3FC',
+  purple: '#A78BFA', purpleLight: '#C4B5FD',
+  cyan: '#22D3EE', rose: '#FB7185', emerald: '#34D399',
+  text: '#E8ECF4', textSec: '#9CA3B4', textMuted: '#5C6478',
+  grid: 'rgba(255,255,255,0.04)', bgCard: '#1A1F2E',
 };
 
 /* ─── Gradient helper ────────────────────────────────────── */
@@ -75,8 +75,8 @@ function makeGradient(ctx, chartArea, c1, c2) {
 
 /* ─── Shared tooltip ─────────────────────────────────────── */
 const prettyTooltip = {
-  backgroundColor: 'rgba(20,22,25,0.95)', titleColor: '#e9ecef', bodyColor: '#adb5bd',
-  borderColor: 'rgba(113,75,103,0.3)', borderWidth: 1, padding: 14, cornerRadius: 8,
+  backgroundColor: 'rgba(11,15,25,0.95)', titleColor: '#E8ECF4', bodyColor: '#9CA3B4',
+  borderColor: 'rgba(76,110,245,0.25)', borderWidth: 1, padding: 14, cornerRadius: 10,
   titleFont: { family: "'Inter',sans-serif", weight: '700', size: 13 },
   bodyFont: { family: "'Inter',sans-serif", size: 12 },
   displayColors: true, boxPadding: 6, usePointStyle: true,
@@ -262,9 +262,9 @@ export function renderAnalytics() {
     <div class="card-header"><span class="card-title flex items-center gap-2"><span class="material-symbols-rounded" style="color:${C.primaryLight}">summarize</span> One-Click Reports</span></div>
     <div class="card-body">
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--sp-4)">
-        <button class="one-click-report-card" id="exp-pdf"><div style="width:44px;height:44px;border-radius:var(--radius-md);background:#dc3545;display:flex;align-items:center;justify-content:center;margin-bottom:var(--sp-3)"><span class="material-symbols-rounded" style="font-size:20px;color:#fff">picture_as_pdf</span></div><div style="font-weight:700">PDF Report</div><div class="text-xs text-muted">Print-ready analytics</div></button>
-        <button class="one-click-report-card" id="exp-xl"><div style="width:44px;height:44px;border-radius:var(--radius-md);background:#28a745;display:flex;align-items:center;justify-content:center;margin-bottom:var(--sp-3)"><span class="material-symbols-rounded" style="font-size:20px;color:#fff">table_view</span></div><div style="font-weight:700">Excel Report</div><div class="text-xs text-muted">8-sheet workbook</div></button>
-        <button class="one-click-report-card" id="exp-csv"><div style="width:44px;height:44px;border-radius:var(--radius-md);background:#17a2b8;display:flex;align-items:center;justify-content:center;margin-bottom:var(--sp-3)"><span class="material-symbols-rounded" style="font-size:20px;color:#fff">csv</span></div><div style="font-weight:700">CSV Export</div><div class="text-xs text-muted">Vehicle ROI data</div></button>
+        <button class="one-click-report-card" id="exp-pdf"><div style="width:44px;height:44px;border-radius:var(--radius-md);background:#F87171;display:flex;align-items:center;justify-content:center;margin-bottom:var(--sp-3)"><span class="material-symbols-rounded" style="font-size:20px;color:#fff">picture_as_pdf</span></div><div style="font-weight:700">PDF Report</div><div class="text-xs text-muted">Print-ready analytics</div></button>
+        <button class="one-click-report-card" id="exp-xl"><div style="width:44px;height:44px;border-radius:var(--radius-md);background:#34D399;display:flex;align-items:center;justify-content:center;margin-bottom:var(--sp-3)"><span class="material-symbols-rounded" style="font-size:20px;color:#fff">table_view</span></div><div style="font-weight:700">Excel Report</div><div class="text-xs text-muted">8-sheet workbook</div></button>
+        <button class="one-click-report-card" id="exp-csv"><div style="width:44px;height:44px;border-radius:var(--radius-md);background:#38BDF8;display:flex;align-items:center;justify-content:center;margin-bottom:var(--sp-3)"><span class="material-symbols-rounded" style="font-size:20px;color:#fff">csv</span></div><div style="font-weight:700">CSV Export</div><div class="text-xs text-muted">Vehicle ROI data</div></button>
       </div>
     </div>
   </div>`;
@@ -288,7 +288,7 @@ export function renderAnalytics() {
           borderWidth: 3,
           tension: 0.45,
           fill: true,
-          backgroundColor: 'rgba(40,167,69,0.1)',
+          backgroundColor: 'rgba(52,211,153,0.1)',
           pointRadius: 6,
           pointHoverRadius: 10,
           pointBackgroundColor: C.success,
@@ -305,7 +305,7 @@ export function renderAnalytics() {
           borderWidth: 3,
           tension: 0.45,
           fill: true,
-          backgroundColor: 'rgba(220,53,69,0.08)',
+          backgroundColor: 'rgba(248,113,113,0.08)',
           pointRadius: 6,
           pointHoverRadius: 10,
           pointBackgroundColor: C.danger,
@@ -376,7 +376,7 @@ export function renderAnalytics() {
       datasets: [{
         label: 'Trips',
         data: mTrips,
-        backgroundColor: 'rgba(113,75,103,0.7)',
+        backgroundColor: 'rgba(76,110,245,0.7)',
         hoverBackgroundColor: C.primaryLight,
         borderColor: C.primary,
         borderWidth: 1,
@@ -543,7 +543,7 @@ export function renderAnalytics() {
         borderWidth: 3,
         tension: 0.45,
         fill: true,
-        backgroundColor: 'rgba(113,75,103,0.12)',
+        backgroundColor: 'rgba(76,110,245,0.12)',
         pointRadius: 7,
         pointHoverRadius: 11,
         pointBackgroundColor: mProfit.map(v => v >= 0 ? C.success : C.danger),
@@ -673,9 +673,9 @@ export function renderAnalytics() {
       { label: 'Total Revenue', value: formatCurrency(totalRevenue), color: '#22c55e' },
       { label: 'Total Costs', value: formatCurrency(totalFuel + totalMaint + totalExpense), color: '#ef4444' },
       { label: 'Net Profit', value: formatCurrency(netProfit), color: netProfit >= 0 ? '#22c55e' : '#ef4444' },
-      { label: 'Profit Margin', value: profitMargin, color: '#714B67' },
-      { label: 'Completed Trips', value: String(completedTrips.length), color: '#17a2b8' },
-      { label: 'Fleet Size', value: String(vehicles.length), color: '#714B67' },
+      { label: 'Profit Margin', value: profitMargin, color: '#4C6EF5' },
+      { label: 'Completed Trips', value: String(completedTrips.length), color: '#38BDF8' },
+      { label: 'Fleet Size', value: String(vehicles.length), color: '#A78BFA' },
     ];
 
     exportPDF({

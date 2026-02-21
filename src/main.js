@@ -33,9 +33,13 @@ router.register('/analytics', guard(renderAnalytics));
 async function init() {
     const app = document.getElementById('app');
     app.innerHTML = `
-    <div style="display:flex;align-items:center;justify-content:center;min-height:100vh;gap:12px;color:var(--text-muted)">
-      <span class="material-symbols-rounded" style="font-size:32px;animation:float 1.5s ease-in-out infinite">hub</span>
-      <span style="font-size:1.1rem;font-weight:600">Loading FleetFlow...</span>
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:16px;animation:fadeIn 0.5s ease both">
+      <span class="material-symbols-rounded" style="font-size:40px;color:var(--c-accent-light);animation:heroIconFloat 2s ease-in-out infinite">hub</span>
+      <span style="font-size:1.1rem;font-weight:700;color:var(--text-primary);letter-spacing:-0.01em">FleetFlow</span>
+      <div style="width:120px;height:3px;background:var(--bg-card);border-radius:9px;overflow:hidden">
+        <div style="width:40%;height:100%;background:var(--c-accent);border-radius:9px;animation:loadingBar 1.2s ease-in-out infinite"></div>
+      </div>
+      <style>@keyframes loadingBar{0%{transform:translateX(-100%)}50%{transform:translateX(150%)}100%{transform:translateX(-100%)}}</style>
     </div>
   `;
 

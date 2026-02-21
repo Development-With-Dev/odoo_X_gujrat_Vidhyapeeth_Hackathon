@@ -236,15 +236,30 @@ function heroPanel() {
   return `
     <div class="login-hero">
       <div class="login-hero-content">
-        <div class="login-hero-icon"><span class="material-symbols-rounded" style="font-size:4rem;color:white">hub</span></div>
-        <h2>FleetFlow</h2>
-        <p>Replace inefficient manual logbooks with a centralized, rule-based digital hub that optimizes your delivery fleet lifecycle.</p>
-        <div style="margin-top:2rem;display:flex;gap:1.5rem;justify-content:center;flex-wrap:wrap">
-          <div style="text-align:center;padding:var(--sp-3) var(--sp-4);background:rgba(255,255,255,0.08);border-radius:var(--radius-md)"><div style="font-size:1.5rem;font-weight:800;color:white">Fleet</div><div style="font-size:0.7rem;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:0.08em">Management</div></div>
-          <div style="text-align:center;padding:var(--sp-3) var(--sp-4);background:rgba(255,255,255,0.08);border-radius:var(--radius-md)"><div style="font-size:1.5rem;font-weight:800;color:white">RBAC</div><div style="font-size:0.7rem;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:0.08em">Roles</div></div>
-          <div style="text-align:center;padding:var(--sp-3) var(--sp-4);background:rgba(255,255,255,0.08);border-radius:var(--radius-md)"><div style="font-size:1.5rem;font-weight:800;color:white">99%</div><div style="font-size:0.7rem;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:0.08em">Uptime</div></div>
+        <div class="login-hero-icon"><span class="material-symbols-rounded" style="font-size:3.5rem;color:var(--c-accent-light)">hub</span></div>
+        <h2 style="color:var(--text-primary)">FleetFlow</h2>
+        <p style="color:var(--text-secondary)">Replace inefficient manual logbooks with a centralized, rule-based digital hub that optimizes your delivery fleet lifecycle.</p>
+        <div style="margin-top:2.5rem;display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
+          <div class="login-stat-card" style="animation:fadeSlideUp 0.6s var(--ease-out) 0.6s both;min-width:100px">
+            <div style="font-size:1.6rem;font-weight:800;color:var(--c-accent-light)">Fleet</div>
+            <div style="font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;margin-top:2px">Management</div>
+          </div>
+          <div class="login-stat-card" style="animation:fadeSlideUp 0.6s var(--ease-out) 0.75s both;min-width:100px">
+            <div style="font-size:1.6rem;font-weight:800;color:var(--c-success)">RBAC</div>
+            <div style="font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;margin-top:2px">Roles</div>
+          </div>
+          <div class="login-stat-card" style="animation:fadeSlideUp 0.6s var(--ease-out) 0.9s both;min-width:100px">
+            <div style="font-size:1.6rem;font-weight:800;color:var(--c-info)">99%</div>
+            <div style="font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;margin-top:2px">Uptime</div>
+          </div>
         </div>
       </div>
+      <!-- Floating decorative dots -->
+      <div style="position:absolute;width:6px;height:6px;border-radius:50%;background:var(--c-accent);opacity:0.3;top:15%;left:20%;animation:float 4s ease-in-out infinite"></div>
+      <div style="position:absolute;width:4px;height:4px;border-radius:50%;background:var(--c-success);opacity:0.25;top:70%;left:15%;animation:float 5s ease-in-out 1s infinite"></div>
+      <div style="position:absolute;width:8px;height:8px;border-radius:50%;background:var(--c-info);opacity:0.2;top:25%;right:20%;animation:float 6s ease-in-out 0.5s infinite"></div>
+      <div style="position:absolute;width:5px;height:5px;border-radius:50%;background:var(--c-warning);opacity:0.2;bottom:20%;right:25%;animation:float 4.5s ease-in-out 1.5s infinite"></div>
+      <div style="position:absolute;width:3px;height:3px;border-radius:50%;background:var(--c-accent-light);opacity:0.15;top:50%;left:10%;animation:float 5.5s ease-in-out 2s infinite"></div>
     </div>`;
 }
 
