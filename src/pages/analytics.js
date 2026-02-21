@@ -1,6 +1,6 @@
 import { store } from '../store/data.js';
 import { renderShell, bindShellEvents } from '../components/shell.js';
-import { formatCurrency, formatCompact, vehicleIcon, exportCSV, toast } from '../utils/helpers.js';
+import { formatCurrency, formatCompact, vehicleIcon, exportCSV, exportPDF, toast } from '../utils/helpers.js';
 
 export function renderAnalytics() {
   const app = document.getElementById('app');
@@ -135,17 +135,162 @@ export function renderAnalytics() {
   </div>`;
 
   app.innerHTML = renderShell('Analytics & Reports', 'Data-driven fleet insights',
-    `<button class="btn btn-primary" id="export-full"><span class="material-symbols-rounded">description</span> Full Report CSV</button>`, body);
+    `<button class="btn btn-secondary" id="export-pdf"><span class="material-symbols-rounded">picture_as_pdf</span> Export PDF</button>
+     <button class="btn btn-primary" id="export-full"><span class="material-symbols-rounded">description</span> Full Report CSV</button>`, body);
   bindShellEvents();
 
+  // --- Export Vehicle ROI CSV ---
   document.getElementById('export-analytics')?.addEventListener('click', () => {
     exportCSV(vehicleMetrics.map(v => ({ Vehicle: v.name, Plate: v.licensePlate, Trips: v.tripCount, Distance_km: v.totalKm, Fuel_L: v.totalLiters, FuelEff: v.fuelEff, CostPerKm: v.costPerKm, Revenue: v.revenue, OpsCost: v.opsCost, ROI_pct: v.roi })), 'fleetflow_vehicle_roi.csv');
     toast('Report exported', 'success');
   });
 
+  // --- Export PDF Analytics Report ---
+  document.getElementById('export-pdf')?.addEventListener('click', () => {
+    const totalCosts = totalFuel + totalMaint + totalExpense;
+    const costTotal = totalCosts || 1;
+
+    exportPDF('Fleet Analytics Report', [
+      {
+        type: 'kpi',
+        items: [
+          { label: 'Total Revenue', value: formatCurrency(totalRevenue), color: '#16a34a' },
+          { label: 'Total Costs', value: formatCurrency(totalCosts), color: '#dc2626' },
+          { label: 'Net Profit', value: formatCurrency(netProfit), color: netProfit >= 0 ? '#16a34a' : '#dc2626' },
+          { label: 'Completed Trips', value: completedTrips.length, color: '#6366f1' },
+        ]
+      },
+      {
+        type: 'bar',
+        title: 'Cost Distribution',
+        items: [
+          { label: 'Fuel', pct: ((totalFuel / costTotal) * 100).toFixed(0), color: '#dc2626', display: formatCurrency(totalFuel) },
+          { label: 'Maintenance', pct: ((totalMaint / costTotal) * 100).toFixed(0), color: '#f59e0b', display: formatCurrency(totalMaint) },
+          { label: 'Other Expenses', pct: ((totalExpense / costTotal) * 100).toFixed(0), color: '#3b82f6', display: formatCurrency(totalExpense) },
+        ]
+      },
+      {
+        type: 'table',
+        title: 'Vehicle Performance & ROI',
+        data: vehicleMetrics.map(v => ({
+          Vehicle: v.name,
+          Plate: v.licensePlate,
+          Type: v.type,
+          Trips: v.tripCount,
+          'Distance (km)': v.totalKm.toLocaleString(),
+          'Fuel (L)': v.totalLiters,
+          'Fuel Eff.': v.fuelEff !== '—' ? v.fuelEff + ' km/L' : '—',
+          'Cost/km': v.costPerKm !== '—' ? '₹' + v.costPerKm : '—',
+          Revenue: formatCurrency(v.revenue),
+          'Ops Cost': formatCurrency(v.opsCost),
+          'ROI': v.roi + '%',
+        }))
+      },
+      {
+        type: 'table',
+        title: 'Driver Leaderboard (Top 5)',
+        data: store.drivers.sort((a, b) => b.safetyScore - a.safetyScore).slice(0, 5).map((d, i) => ({
+          Rank: '#' + (i + 1),
+          Name: d.name,
+          Status: d.status,
+          'Trips Completed': d.tripsCompleted,
+          'Safety Score': d.safetyScore,
+        }))
+      },
+    ]);
+    toast('PDF report opened — use Print / Save as PDF', 'success');
+  });
+
+  // --- Export Full Report CSV (ALL data) ---
   document.getElementById('export-full')?.addEventListener('click', () => {
-    const data = [{ Type: 'Revenue', Amount: totalRevenue }, { Type: 'Fuel Cost', Amount: totalFuel }, { Type: 'Maintenance', Amount: totalMaint }, { Type: 'Other Expenses', Amount: totalExpense }, { Type: 'Net Profit', Amount: netProfit }];
-    exportCSV(data, 'fleetflow_financial_summary.csv');
-    toast('Financial summary exported', 'success');
+    // Build comprehensive CSV rows from all data sources
+    const rows = [];
+
+    // Section: Financial Summary
+    rows.push({ Section: 'FINANCIAL SUMMARY', Item: 'Total Revenue', Value: totalRevenue, Unit: '₹', Details: '' });
+    rows.push({ Section: 'FINANCIAL SUMMARY', Item: 'Fuel Cost', Value: totalFuel, Unit: '₹', Details: '' });
+    rows.push({ Section: 'FINANCIAL SUMMARY', Item: 'Maintenance Cost', Value: totalMaint, Unit: '₹', Details: '' });
+    rows.push({ Section: 'FINANCIAL SUMMARY', Item: 'Other Expenses', Value: totalExpense, Unit: '₹', Details: '' });
+    rows.push({ Section: 'FINANCIAL SUMMARY', Item: 'Net Profit', Value: netProfit, Unit: '₹', Details: `Margin: ${totalRevenue > 0 ? ((netProfit / totalRevenue) * 100).toFixed(1) : 0}%` });
+    rows.push({ Section: '', Item: '', Value: '', Unit: '', Details: '' });
+
+    // Section: Vehicle Metrics
+    vehicleMetrics.forEach(v => {
+      rows.push({
+        Section: 'VEHICLE PERFORMANCE',
+        Item: v.name,
+        Value: '',
+        Unit: '',
+        Details: `Plate:${v.licensePlate} | Type:${v.type} | Trips:${v.tripCount} | Dist:${v.totalKm}km | Fuel:${v.totalLiters}L | Eff:${v.fuelEff} | Rev:₹${v.revenue} | Ops:₹${v.opsCost} | ROI:${v.roi}%`
+      });
+    });
+    rows.push({ Section: '', Item: '', Value: '', Unit: '', Details: '' });
+
+    // Section: All Trips
+    store.trips.forEach(t => {
+      const vehicle = store.getVehicle(t.vehicleId);
+      const driver = store.getDriver(t.driverId);
+      rows.push({
+        Section: 'ALL TRIPS',
+        Item: (t.id || '').slice(-8),
+        Value: t.revenue || 0,
+        Unit: '₹',
+        Details: `${t.origin}→${t.destination} | Vehicle:${vehicle?.name || 'N/A'} | Driver:${driver?.name || 'N/A'} | Status:${t.status} | Cargo:${t.cargoWeight || 0}kg | ${t.cargoDescription || ''}`
+      });
+    });
+    rows.push({ Section: '', Item: '', Value: '', Unit: '', Details: '' });
+
+    // Section: Drivers
+    store.drivers.forEach(d => {
+      rows.push({
+        Section: 'DRIVERS',
+        Item: d.name,
+        Value: d.safetyScore,
+        Unit: 'Score',
+        Details: `Status:${d.status} | Completed:${d.tripsCompleted} | Cancelled:${d.tripsCancelled || 0} | License:${d.licenseCategory || 'N/A'} | Expiry:${d.licenseExpiry || 'N/A'}`
+      });
+    });
+    rows.push({ Section: '', Item: '', Value: '', Unit: '', Details: '' });
+
+    // Section: Fuel Logs
+    store.fuelLogs.forEach(f => {
+      const vehicle = store.getVehicle(f.vehicleId);
+      rows.push({
+        Section: 'FUEL LOGS',
+        Item: vehicle?.name || f.vehicleId,
+        Value: f.totalCost,
+        Unit: '₹',
+        Details: `Liters:${f.liters} | Cost/L:₹${f.costPerLiter} | Date:${f.date || ''} | Station:${f.station || ''}`
+      });
+    });
+    rows.push({ Section: '', Item: '', Value: '', Unit: '', Details: '' });
+
+    // Section: Maintenance
+    store.maintenance.forEach(m => {
+      const vehicle = store.getVehicle(m.vehicleId);
+      rows.push({
+        Section: 'MAINTENANCE',
+        Item: vehicle?.name || m.vehicleId,
+        Value: m.cost,
+        Unit: '₹',
+        Details: `Type:${m.type} | Status:${m.status} | Date:${m.date || ''} | Notes:${m.description || ''}`
+      });
+    });
+    rows.push({ Section: '', Item: '', Value: '', Unit: '', Details: '' });
+
+    // Section: Other Expenses
+    store.expenses.forEach(e => {
+      const vehicle = store.getVehicle(e.vehicleId);
+      rows.push({
+        Section: 'EXPENSES',
+        Item: vehicle?.name || e.vehicleId || 'General',
+        Value: e.amount,
+        Unit: '₹',
+        Details: `Category:${e.category || ''} | Date:${e.date || ''} | Notes:${e.description || ''}`
+      });
+    });
+
+    exportCSV(rows, `fleetflow_full_report_${new Date().toISOString().slice(0, 10)}.csv`);
+    toast('Full report CSV downloaded', 'success');
   });
 }
