@@ -136,6 +136,39 @@ class Store {
         this._notify();
     }
 
+    async updateProfile(updates) {
+        try {
+            const res = await fetch(`${API_BASE}/auth/profile`, {
+                method: 'PUT',
+                headers: this._getAuthHeaders(),
+                body: JSON.stringify(updates),
+            });
+            const data = await res.json();
+            if (data.success) {
+                this._data.currentUser = data.user;
+                this._notify();
+                return { success: true, user: data.user };
+            }
+            return { success: false, error: data.error };
+        } catch (err) {
+            return { success: false, error: 'Failed to update profile' };
+        }
+    }
+
+    async changePassword(currentPassword, newPassword) {
+        try {
+            const res = await fetch(`${API_BASE}/auth/profile/password`, {
+                method: 'PATCH',
+                headers: this._getAuthHeaders(),
+                body: JSON.stringify({ currentPassword, newPassword }),
+            });
+            const data = await res.json();
+            return data;
+        } catch (err) {
+            return { success: false, error: 'Failed to change password' };
+        }
+    }
+
     get vehicles() { return [...this._data.vehicles]; }
     getVehicle(id) { return this._data.vehicles.find(v => v.id === id || v.id?.toString() === id); }
 

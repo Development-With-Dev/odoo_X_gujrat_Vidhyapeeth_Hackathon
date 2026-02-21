@@ -45,13 +45,20 @@ export function renderShell(pageTitle, subtitle, headerActions, bodyContent) {
         </nav>
 
         <div class="sidebar-footer">
-          <div class="sidebar-user" id="sidebar-user-menu">
+          <div class="sidebar-user" id="sidebar-profile-link" style="cursor:pointer" title="View Profile">
             <div class="sidebar-avatar">${user.avatar}</div>
             <div class="sidebar-user-info">
               <div class="sidebar-user-name">${user.name}</div>
               <div class="sidebar-user-role">${user.role}</div>
             </div>
-            <span class="material-symbols-rounded" style="color:var(--text-muted);font-size:18px">logout</span>
+          </div>
+          <div style="display:flex;gap:var(--sp-2);padding:var(--sp-2) var(--sp-3) 0">
+            <button class="btn btn-ghost btn-sm" data-nav="/profile" style="flex:1;justify-content:flex-start;gap:6px;color:var(--text-muted)">
+              <span class="material-symbols-rounded" style="font-size:16px">settings</span> Settings
+            </button>
+            <button class="btn btn-ghost btn-sm" id="sidebar-logout-btn" style="color:var(--c-danger);gap:4px" title="Logout">
+              <span class="material-symbols-rounded" style="font-size:16px">logout</span>
+            </button>
           </div>
         </div>
       </aside>
@@ -106,8 +113,13 @@ export function bindShellEvents() {
     });
   });
 
+  /* ─── Profile link ─── */
+  document.getElementById('sidebar-profile-link')?.addEventListener('click', () => {
+    router.navigate('/profile');
+  });
+
   /* ─── Logout Confirmation Modal ─── */
-  const logoutBtn = document.getElementById('sidebar-user-menu');
+  const logoutBtn = document.getElementById('sidebar-logout-btn');
   const logoutModal = document.getElementById('logout-modal');
   const closeLogoutModal = () => { if (logoutModal) logoutModal.style.display = 'none'; };
 

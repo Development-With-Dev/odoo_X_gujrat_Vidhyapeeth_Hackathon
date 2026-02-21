@@ -9,6 +9,7 @@ import { renderMaintenance } from './pages/maintenance.js';
 import { renderExpenses } from './pages/expenses.js';
 import { renderDrivers } from './pages/drivers.js';
 import { renderAnalytics } from './pages/analytics.js';
+import { renderProfile } from './pages/profile.js';
 
 function guard(renderFn) {
     return () => {
@@ -29,6 +30,7 @@ router.register('/maintenance', guard(renderMaintenance));
 router.register('/expenses', guard(renderExpenses));
 router.register('/drivers', guard(renderDrivers));
 router.register('/analytics', guard(renderAnalytics));
+router.register('/profile', guard(renderProfile));
 
 async function init() {
     const app = document.getElementById('app');

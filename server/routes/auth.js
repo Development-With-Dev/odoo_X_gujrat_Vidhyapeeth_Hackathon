@@ -166,4 +166,66 @@ router.post('/reset-password', async (req, res) => {
     }
 });
 
+/* ─── Update Profile ─── */
+router.put('/profile', async (req, res) => {
+    try {
+        const authHeader = req.headers.authorization;
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            return res.status(401).json({ success: false, error: 'No token provided' });
+        }
+        const token = authHeader.split(' ')[1];
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const user = await User.findById(decoded.id);
+        if (!user) {
+            return res.status(404).json({ success: false, error: 'User not found' });
+        }
+
+        const { name, avatar, companyName } = req.body;
+        if (name) user.name = name.trim();
+        if (avatar) user.avatar = avatar;
+        if (companyName !== undefined) user.companyName = companyName.trim();
+        await user.save();
+
+        res.json({ success: true, user: user.toJSON() });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+/* ─── Change Password ─── */
+router.patch('/profile/password', async (req, res) => {
+    try {
+        const authHeader = req.headers.authorization;
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            return res.status(401).json({ success: false, error: 'No token provided' });
+        }
+        const token = authHeader.split(' ')[1];
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const user = await User.findById(decoded.id);
+        if (!user) {
+            return res.status(404).json({ success: false, error: 'User not found' });
+        }
+
+        const { currentPassword, newPassword } = req.body;
+        if (!currentPassword || !newPassword) {
+            return res.status(400).json({ success: false, error: 'Current and new password are required' });
+        }
+        if (newPassword.length < 4) {
+            return res.status(400).json({ success: false, error: 'New password must be at least 4 characters' });
+        }
+
+        const isMatch = await user.comparePassword(currentPassword);
+        if (!isMatch) {
+            return res.status(401).json({ success: false, error: 'Current password is incorrect' });
+        }
+
+        user.password = newPassword;
+        await user.save();
+
+        res.json({ success: true, message: 'Password updated successfully' });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
 export default router;
